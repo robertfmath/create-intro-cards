@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# This script automates the process of formatting and linting the Python code (using Ruff), 
-# formatting docstrings (using docformatter), running tests, and locally building the project's  
+# This script automates the process of formatting and linting the Python code (using Ruff),
+# formatting docstrings (using docformatter), running tests, and locally building the project's
 # documentation (using Sphinx). The GitHub Actions workflow expects formatting to have already been applied
-# and tests to have passed, so this is useful to run before pushing or creating a pull request. 
+# and tests to have passed, so this is useful to run before pushing or creating a pull request.
 
 # Run Ruff formatting
 echo "Running Ruff format on create_intro_cards.py"
-ruff format create_intro_cards.py
+uv run ruff format create_intro_cards.py
 echo "Running Ruff format on tests/test_create_intro_cards.py"
-ruff format tests/test_create_intro_cards.py
+uv run ruff format tests/test_create_intro_cards.py
 
 if [ $? -ne 0 ]; then
     echo "Ruff formatting failed."
@@ -18,9 +18,9 @@ fi
 
 # Run Ruff linting
 echo "Running Ruff lint on create_intro_cards.py"
-ruff check create_intro_cards.py
+uv run ruff check create_intro_cards.py
 echo "Running Ruff lint on tests/test_create_intro_cards.py"
-ruff check tests/test_create_intro_cards.py
+uv run ruff check tests/test_create_intro_cards.py
 
 if [ $? -ne 0 ]; then
     echo "Ruff linting failed."
@@ -29,9 +29,9 @@ fi
 
 # Run docformatter to format docstrings (wrapping at 88 characters, in line with Black)
 echo "Running docformatter on create_intro_cards.py"
-docformatter --in-place create_intro_cards.py
+uv run docformatter --in-place create_intro_cards.py
 echo "Running docformatter on tests/test_create_intro_cards.py"
-docformatter --in-place tests/test_create_intro_cards.py
+uv run docformatter --in-place tests/test_create_intro_cards.py
 
 if [ $? -ne 0 ]; then
     echo "Docformatter failed."
@@ -40,7 +40,7 @@ fi
 
 # Run tests
 echo "Running tests"
-python -m unittest tests/test_create_intro_cards.py
+uv run python -m unittest tests/test_create_intro_cards.py
 if [ $? -ne 0 ]; then
     echo "Tests failed."
     exit 1
@@ -51,9 +51,9 @@ cd ./docs
 
 echo "Building documentation with Sphinx"
 if [ "$(uname)" = "Darwin" ] || [ "$(uname)" = "Linux" ]; then
-    make clean && make html
+    uv run make clean && uv run make html
 else
-    ./make.bat clean && ./make.bat html
+    uv run ./make.bat clean && uv run ./make.bat html
 fi
 
 if [ $? -ne 0 ]; then
