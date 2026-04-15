@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from datetime import datetime
 import glob
 import logging
@@ -28,6 +29,43 @@ class StatsDict(TypedDict):
     """The names of people whose photos could not be found or read."""
 
 
+@dataclass
+class CardLayout:
+    """Layout and formatting parameters for intro cards.
+
+    :param figure_size: Width and height of each page figure in inches, defaults to
+        (23, 13)
+    :type figure_size: tuple[float, float], optional
+    :param name_x_coord: Axes-relative x-coordinate of the name (and description) on
+        each card, defaults to 0.35
+    :type name_x_coord: float, optional
+    :param name_y_coord: Axes-relative y-coordinate of the name on each card, defaults
+        to 0.95
+    :type name_y_coord: float, optional
+    :param name_font_size: Font size of the name on each card, defaults to 50
+    :type name_font_size: float, optional
+    :param desc_padding: Axes-relative padding between the bottom of the name bounding
+        box and the top of the description, defaults to 0.05
+    :type desc_padding: float, optional
+    :param desc_font_size: Font size of the description on each card. Iteratively reduced
+        by 5% if the description would overflow the bottom of the card, defaults to 16
+    :type desc_font_size: float, optional
+    :param photo_axes_bounds: Bounds of the inset photo Axes as (x0, y0, width, height)
+        in Axes-relative coordinates, defaults to (0.02, 0.02, 0.3, 0.93)
+    :type photo_axes_bounds: tuple[float, float, float, float], optional
+    """
+
+    figure_size: tuple[float, float] = (23, 13)
+    name_x_coord: float = 0.35
+    name_y_coord: float = 0.95
+    name_font_size: float = 50
+    desc_padding: float = 0.05
+    desc_font_size: float = 16
+    photo_axes_bounds: tuple[float, float, float, float] = field(
+        default_factory=lambda: (0.02, 0.02, 0.3, 0.93)
+    )
+
+
 # Required for ``make_pdf_preview``; matches Agg backend of `savefig` in `make_pdf`
 mpl.use("module://matplotlib_inline.backend_inline")
 
@@ -42,13 +80,7 @@ def make_pdf(
     photo_path_col: str,
     path_to_default_photo: str,
     path_to_output_dir: str = "./intro_cards_output",
-    figure_size: tuple[float, float] = (23, 13),
-    name_x_coord: float = 0.35,
-    name_y_coord: float = 0.95,
-    name_font_size: float = 50,
-    desc_padding: float = 0.05,
-    desc_font_size: float = 16,
-    photo_axes_bounds: tuple[float, float, float, float] = (0.02, 0.02, 0.3, 0.93),
+    layout: CardLayout = CardLayout(),
 ) -> StatsDict:
     r"""Generate a PDF containing intro cards for all individuals in ``people_data``.
 
@@ -118,39 +150,10 @@ def make_pdf(
         this argument using a single-backlash separator, make sure to use a raw string.,
         defaults to 'intro_cards_output'
     :type path_to_output_dir: str, optional
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF., defaults to (23, 13)
-    :type figure_size: tuple[float, float], optional
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions., defaults to 0.35
-    :type name_x_coord: float, optional
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes), defaults to 0.95
-    :type name_y_coord: float, optional
-    :param name_font_size: The font size of individuals' names on their intro cards,
-        defaults to 50
-    :type name_font_size: float, optional
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description, defaults to 0.05
-    :type desc_padding: float, optional
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.,
-        defaults to 16
-    :type desc_font_size: float, optional
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative., defaults to (0.02, 0.02, 0.3, 0.93)
-    :type photo_axes_bounds: tuple[float, float, float, float], optional
+    :param layout: Layout and formatting parameters controlling figure size, name and
+        description placement, font sizes, and photo bounds. See :class:`CardLayout` for
+        all options and defaults., defaults to CardLayout()
+    :type layout: CardLayout, optional
     :raises OSError: If the default photo does not exist at the specified path, or if
         the default photo cannot be read by PIL, or if the specified output directory
         does not exist and then cannot be created
@@ -220,13 +223,7 @@ def make_pdf(
             photo_path_col,
             path_to_default_photo,
             path_to_output_dir,
-            figure_size,
-            name_x_coord,
-            name_y_coord,
-            name_font_size,
-            desc_padding,
-            desc_font_size,
-            photo_axes_bounds,
+            layout,
             stats=stats,
         )
         figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
@@ -271,13 +268,7 @@ def make_pdf_preview(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    figure_size: tuple[float, float] = (23, 13),
-    name_x_coord: float = 0.35,
-    name_y_coord: float = 0.95,
-    name_font_size: float = 50,
-    desc_padding: float = 0.05,
-    desc_font_size: float = 16,
-    photo_axes_bounds: tuple[float, float, float, float] = (0.02, 0.02, 0.3, 0.93),
+    layout: CardLayout = CardLayout(),
 ) -> StatsDict:
     """Show a preview in a Jupyter environment of the first page of the PDF that would
     be created if :func:`make_pdf` were run, and print log output to the console.
@@ -322,39 +313,10 @@ def make_pdf_preview(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF., defaults to (23, 13)
-    :type figure_size: tuple[float, float], optional
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions., defaults to 0.35
-    :type name_x_coord: float, optional
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes), defaults to 0.95
-    :type name_y_coord: float, optional
-    :param name_font_size: The font size of individuals' names on their intro cards,
-        defaults to 50
-    :type name_font_size: float, optional
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description, defaults to 0.05
-    :type desc_padding: float, optional
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.,
-        defaults to 16
-    :type desc_font_size: float, optional
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative., defaults to (0.02, 0.02, 0.3, 0.93)
-    :type photo_axes_bounds: tuple[float, float, float, float], optional
+    :param layout: Layout and formatting parameters controlling figure size, name and
+        description placement, font sizes, and photo bounds. See :class:`CardLayout` for
+        all options and defaults., defaults to CardLayout()
+    :type layout: CardLayout, optional
     :raises OSError: If the default photo does not exist at the specified path, or if
         the default photo cannot be read by PIL
     :raises ValueError: If ``first_name_col``, ``last_name_col``, or ``photo_path_col``
@@ -408,13 +370,7 @@ def make_pdf_preview(
             last_name_col,
             photo_path_col,
             path_to_default_photo,
-            figure_size,
-            name_x_coord,
-            name_y_coord,
-            name_font_size,
-            desc_padding,
-            desc_font_size,
-            photo_axes_bounds,
+            layout,
             stats=stats,
         )
 
@@ -439,13 +395,7 @@ def _make_figs(
     photo_path_col: str,
     path_to_default_photo: str,
     path_to_output_dir: str,
-    figure_size: tuple[float, float],
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: CardLayout,
     stats: StatsDict,
 ) -> None:
     """Iteratively grab batches of four rows (individuals) from ``people_data``, and for
@@ -489,38 +439,8 @@ def _make_figs(
         the log file. If it does not exist, it will be created at runtime. If specifying
         this argument using a single-backlash separator, make sure to use a raw string.
     :type path_to_output_dir: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of individuals' names on their intro cards
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.,
-        defaults to 16
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -539,7 +459,7 @@ def _make_figs(
                 end_ind = start_ind + 4
             else:
                 end_ind = people_data.shape[0]
-            fig, axs = plt.subplots(2, 2, figsize=figure_size, dpi=175)
+            fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=175)
             fig.tight_layout(h_pad=0.1, w_pad=0.1)
             for ax in axs.ravel():
                 ax.axis("off")
@@ -553,12 +473,7 @@ def _make_figs(
                     last_name_col,
                     photo_path_col,
                     path_to_default_photo,
-                    name_x_coord,
-                    name_y_coord,
-                    name_font_size,
-                    desc_padding,
-                    desc_font_size,
-                    photo_axes_bounds,
+                    layout,
                     stats=stats,
                 )
             fig.savefig(os.path.join(path_to_output_dir, f"figure{i + 1}.png"))
@@ -572,13 +487,7 @@ def _make_fig_preview(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    figure_size: tuple[float, float],
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: CardLayout,
     stats: StatsDict,
 ) -> None:
     """Show a preview (using :func:`plt.show`) of the first page of the PDF that would
@@ -618,37 +527,8 @@ def _make_fig_preview(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of individuals' names on their intro cards
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -665,7 +545,7 @@ def _make_fig_preview(
     with mpl.rc_context({"mathtext.default": "bf"}):
         end_ind = min(people_data.shape[0], 4)
         # Here, dpi controls the resolution of figure preview in interactive environment
-        fig, axs = plt.subplots(2, 2, figsize=figure_size, dpi=300)
+        fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=300)
         fig.tight_layout(h_pad=0.1, w_pad=0.1)
         for ax in axs.ravel():
             ax.axis("off")
@@ -677,12 +557,7 @@ def _make_fig_preview(
                 last_name_col,
                 photo_path_col,
                 path_to_default_photo,
-                name_x_coord,
-                name_y_coord,
-                name_font_size,
-                desc_padding,
-                desc_font_size,
-                photo_axes_bounds,
+                layout,
                 stats=stats,
             )
         plt.show()  # Needs to be called explicitly to properly render Mathtext in bold
@@ -695,12 +570,7 @@ def _make_card(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: CardLayout,
     stats: StatsDict,
 ) -> None:
     """Create a single intro card by plotting an individual's name, photo, and
@@ -729,37 +599,8 @@ def _make_card(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of the individual's name on
-        their intro card (which is a Matplotlib Axes). This will also be the
-        x-coordinate of the individual's description.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of the individual's name on
-        their intro card (which is a Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of the individual's name on their intro card
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of the individual's description on their intro
-        card. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the card
+    :type layout: CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -775,11 +616,11 @@ def _make_card(
     name_right_padding = 0.02  # Padding on right edge of figure for _WrapText
     # Plot name
     name_text = _WrapText(
-        name_x_coord,
-        name_y_coord,
-        f"{row['Full Name']}",
-        fontsize=name_font_size,
-        width=1 - name_x_coord - name_right_padding,
+        layout.name_x_coord,
+        layout.name_y_coord,
+        row["Full Name"],
+        fontsize=layout.name_font_size,
+        width=1 - layout.name_x_coord - name_right_padding,
         widthcoords=ax.transAxes,
         transform=ax.transAxes,
         fontweight="bold",
@@ -790,21 +631,22 @@ def _make_card(
 
     name_text_bbox = name_text.get_window_extent()  # In display coordinates
     name_text_bbox_ax_coords = name_text_bbox.transformed(ax.transAxes.inverted())
-    desc_y1_coord = name_text_bbox_ax_coords.y0 - desc_padding
+    desc_y1_coord = name_text_bbox_ax_coords.y0 - layout.desc_padding
 
     # Plot the description
     # If the provided font size would cause its bottom boundary to come within 0.02
     # of the bottom of the card or exceed the bottom of the card (and therefore be
     # cut off), iteratively reduce the font size by 5% until this is no longer the case.
+    desc_font_size = layout.desc_font_size
     while True:
         desc_text = _WrapText(
-            name_x_coord,
+            layout.name_x_coord,
             desc_y1_coord,
             _get_description_string_from_row(
                 row, first_name_col, last_name_col, photo_path_col
             ),
             fontsize=desc_font_size,
-            width=1 - name_x_coord - name_right_padding,
+            width=1 - layout.name_x_coord - name_right_padding,
             widthcoords=ax.transAxes,
             transform=ax.transAxes,
             va="top",
@@ -844,7 +686,7 @@ def _make_card(
         person_status_msg = "No photo path provided"
         img_to_open = path_to_default_photo
 
-    ax_inset = ax.inset_axes(photo_axes_bounds, anchor="NW")
+    ax_inset = ax.inset_axes(layout.photo_axes_bounds, anchor="NW")
     ax_inset.imshow(Image.open(img_to_open))
     ax_inset.tick_params(axis="both", which="both", length=0)
     ax_inset.set_xticklabels([])
