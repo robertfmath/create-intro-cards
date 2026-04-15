@@ -13,13 +13,17 @@ import create_intro_cards
 class TestMakePDF(unittest.TestCase):
     """Test the `make_pdf` function of create_intro_cards."""
 
-    people_data = pd.read_csv("./tests/test_people_data.csv")
-    path_to_default_photo = "./tests/test_photos/test_default_photo.jpg"
-    path_to_output_dir = "./tests/test_output"
     delete_output = True
 
     @classmethod
     def setUpClass(cls):
+        tests_dir = os.path.dirname(__file__)
+        cls.people_data = pd.read_csv(os.path.join(tests_dir, "test_people_data.csv"))
+        cls.path_to_default_photo = os.path.join(
+            tests_dir, "test_photos", "test_default_photo.jpg"
+        )
+        cls.path_to_output_dir = os.path.join(tests_dir, "test_output")
+
         cls.patcher = patch("create_intro_cards.datetime")
         cls.mock_datetime = cls.patcher.start()
         cls.fake_now = datetime(2025, 3, 12, 10, 24, 16)
@@ -157,8 +161,13 @@ class TestMakePDF(unittest.TestCase):
 class TestMakePreviewPDF(unittest.TestCase):
     """Test the `make_pdf_preview` function of create_intro_cards."""
 
-    people_data = pd.read_csv("./tests/test_people_data.csv")
-    path_to_default_photo = "./tests/test_photos/test_default_photo.jpg"
+    @classmethod
+    def setUpClass(cls):
+        tests_dir = os.path.dirname(__file__)
+        cls.people_data = pd.read_csv(os.path.join(tests_dir, "test_people_data.csv"))
+        cls.path_to_default_photo = os.path.join(
+            tests_dir, "test_photos", "test_default_photo.jpg"
+        )
 
     def test_four_card_previews_made_if_more_than_three_people(self):
         stats = create_intro_cards.make_pdf_preview(
