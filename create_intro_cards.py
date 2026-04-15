@@ -4,14 +4,14 @@ import glob
 import logging
 import os
 import re
-from typing import TypedDict
+from contextlib import contextmanager
+from typing import Generator, TypedDict
 
 import matplotlib as mpl
 from matplotlib import axes
 from matplotlib.text import Text
 from matplotlib.transforms import Transform
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from PIL import Image
 
@@ -74,7 +74,9 @@ logger.setLevel(logging.INFO)
 
 _SAVEFIG_DPI = 175
 _PREVIEW_DPI = 300
-_PDF_RESOLUTION = _SAVEFIG_DPI  # Must match _SAVEFIG_DPI so inch dimensions are preserved
+_PDF_RESOLUTION = (
+    _SAVEFIG_DPI  # Must match _SAVEFIG_DPI so inch dimensions are preserved
+)
 _FONT_SHRINK_FACTOR = 0.95
 _BOTTOM_MARGIN = 0.02
 _CARDS_PER_PAGE = 4
@@ -172,7 +174,11 @@ def make_pdf(
     :rtype: StatsDict
     """
     _validate_inputs(
-        people_data, first_name_col, last_name_col, photo_path_col, path_to_default_photo
+        people_data,
+        first_name_col,
+        last_name_col,
+        photo_path_col,
+        path_to_default_photo,
     )
 
     if not os.path.exists(path_to_output_dir):
@@ -181,18 +187,8 @@ def make_pdf(
         except OSError:
             raise OSError(f"Failed to create `{path_to_output_dir}` directory.")
 
-    logger_stream_handler = logging.StreamHandler()
-    logger_stream_formatter = logging.Formatter("%(message)s")
-    logger_stream_handler.setFormatter(logger_stream_formatter)
-    logger.addHandler(logger_stream_handler)
-
     local_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    logger_file_handler = logging.FileHandler(
-        os.path.join(path_to_output_dir, f"names_{local_timestamp}.log"), mode="w"
-    )
-    logger_file_formatter = logging.Formatter("%(message)s")
-    logger_file_handler.setFormatter(logger_file_formatter)
-    logger.addHandler(logger_file_handler)
+    log_file_path = os.path.join(path_to_output_dir, f"names_{local_timestamp}.log")
 
     stats: StatsDict = {
         "number_of_cards_created": 0,
@@ -200,50 +196,50 @@ def make_pdf(
         "people_with_photo_warnings": [],
     }
 
-    try:
-        _make_figs(
-            people_data,
-            first_name_col,
-            last_name_col,
-            photo_path_col,
-            path_to_default_photo,
-            path_to_output_dir,
-            layout,
-            stats=stats,
-        )
-        figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
-        def _figure_sort_key(path: str) -> int:
-            match = re.search(r"figure(\d+)\.png", path)
-            assert match is not None, f"Unexpected filename format: {path}"
-            return int(match.group(1))
-
-        sorted_figure_image_paths = sorted(figure_image_paths, key=_figure_sort_key)
-        first_img = Image.open(sorted_figure_image_paths[0])
-        first_img.save(
-            os.path.join(path_to_output_dir, "intro_cards.pdf"),
-            resolution=_PDF_RESOLUTION,
-            save_all=True,
-            append_images=(Image.open(path) for path in sorted_figure_image_paths[1:]),
-        )
-
-        logger.info(
-            f"\n\nComplete! See the directory `{path_to_output_dir}` for the PDF.\n"
-        )
-        if stats["people_with_photo_warnings"]:
-            logger.info(
-                "WARNING: Photos could not be found or read at the specified paths "
-                "for the name(s) below. Please confirm the path(s) are valid and that "
-                "the photo(s) are of a format supported by PIL.\n"
+    with _log_to_stream_and_file(log_file_path):
+        try:
+            _make_figs(
+                people_data,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                path_to_output_dir,
+                layout,
+                stats=stats,
             )
-            logger.info("\n".join(stats["people_with_photo_warnings"]))
-        return stats
-    except Exception as e:
-        logger.error(e)
-        raise
-    finally:
-        logger.removeHandler(logger_stream_handler)
-        logger_file_handler.close()
-        logger.removeHandler(logger_file_handler)
+            figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
+
+            def _figure_sort_key(path: str) -> int:
+                match = re.search(r"figure(\d+)\.png", path)
+                assert match is not None, f"Unexpected filename format: {path}"
+                return int(match.group(1))
+
+            sorted_figure_image_paths = sorted(figure_image_paths, key=_figure_sort_key)
+            first_img = Image.open(sorted_figure_image_paths[0])
+            first_img.save(
+                os.path.join(path_to_output_dir, "intro_cards.pdf"),
+                resolution=_PDF_RESOLUTION,
+                save_all=True,
+                append_images=(
+                    Image.open(path) for path in sorted_figure_image_paths[1:]
+                ),
+            )
+
+            logger.info(
+                f"\n\nComplete! See the directory `{path_to_output_dir}` for the PDF.\n"
+            )
+            if stats["people_with_photo_warnings"]:
+                logger.info(
+                    "WARNING: Photos could not be found or read at the specified paths "
+                    "for the name(s) below. Please confirm the path(s) are valid and that "
+                    "the photo(s) are of a format supported by PIL.\n"
+                )
+                logger.info("\n".join(stats["people_with_photo_warnings"]))
+            return stats
+        except Exception as e:
+            logger.error(e)
+            raise
 
 
 def make_pdf_preview(
@@ -311,13 +307,12 @@ def make_pdf_preview(
     :rtype: StatsDict
     """
     _validate_inputs(
-        people_data, first_name_col, last_name_col, photo_path_col, path_to_default_photo
+        people_data,
+        first_name_col,
+        last_name_col,
+        photo_path_col,
+        path_to_default_photo,
     )
-
-    logger_stream_handler = logging.StreamHandler()
-    logger_stream_formatter = logging.Formatter("%(message)s")
-    logger_stream_handler.setFormatter(logger_stream_formatter)
-    logger.addHandler(logger_stream_handler)
 
     stats: StatsDict = {
         "number_of_cards_created": 0,
@@ -325,29 +320,70 @@ def make_pdf_preview(
         "people_with_photo_warnings": [],
     }
 
-    try:
-        _make_fig_preview(
-            people_data,
-            first_name_col,
-            last_name_col,
-            photo_path_col,
-            path_to_default_photo,
-            layout,
-            stats=stats,
-        )
-
-        if stats["people_with_photo_warnings"]:
-            logger.info(
-                "WARNING: Photos could not be found at the specified paths "
-                "for the name(s) below. Please confirm the photo path(s).\n"
+    with _log_to_stream():
+        try:
+            _make_fig_preview(
+                people_data,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                layout,
+                stats=stats,
             )
-            logger.info("\n".join(stats["people_with_photo_warnings"]))
-        return stats
-    except Exception as e:
-        logger.error(e)
-        raise
+
+            if stats["people_with_photo_warnings"]:
+                logger.info(
+                    "WARNING: Photos could not be found at the specified paths "
+                    "for the name(s) below. Please confirm the photo path(s).\n"
+                )
+                logger.info("\n".join(stats["people_with_photo_warnings"]))
+            return stats
+        except Exception as e:
+            logger.error(e)
+            raise
+
+
+@contextmanager
+def _log_to_stream_and_file(file_path: str) -> Generator[None, None, None]:
+    """Context manager that adds a stream handler and a file handler to the module
+    logger for the duration of the ``with`` block, then removes them on exit. Private
+    function.
+
+    :param file_path: Path to the log file to write
+    :type file_path: str
+    :return: None
+    :rtype: Generator[None, None, None]
+    """
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter("%(message)s"))
+    file_handler = logging.FileHandler(file_path, mode="w")
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    try:
+        yield
     finally:
-        logger.removeHandler(logger_stream_handler)
+        logger.removeHandler(stream_handler)
+        file_handler.close()
+        logger.removeHandler(file_handler)
+
+
+@contextmanager
+def _log_to_stream() -> Generator[None, None, None]:
+    """Context manager that adds a stream handler to the module logger for the duration
+    of the ``with`` block, then removes it on exit. Private function.
+
+    :return: None
+    :rtype: Generator[None, None, None]
+    """
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(stream_handler)
+    try:
+        yield
+    finally:
+        logger.removeHandler(stream_handler)
 
 
 def _validate_inputs(
@@ -627,6 +663,59 @@ def _make_fig_preview(
         plt.close(fig)
 
 
+def _resolve_photo(
+    row: pd.Series,
+    photo_path_col: str,
+    path_to_default_photo: str,
+    stats: StatsDict,
+) -> tuple[Image.Image, str, str]:
+    """Determine which photo to display on a card and return it along with a status
+    string and message. Private function.
+
+    Tries the per-person photo path first. Falls back to ``path_to_default_photo`` if
+    the path is empty, the file does not exist, or the file cannot be read by PIL. In
+    fallback cases a warning entry is appended to ``stats``.
+
+    :param row: The row in ``people_data`` for the individual being rendered
+    :type row: pd.Series
+    :param photo_path_col: The name of the column housing paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the fallback photo
+    :type path_to_default_photo: str
+    :param stats: Metadata dictionary; ``people_with_photo_warnings`` is mutated on
+        fallback
+    :type stats: StatsDict
+    :return: A tuple of (opened PIL Image, person_status, person_status_msg)
+    :rtype: tuple[Image.Image, str, str]
+    """
+    if row[photo_path_col] != "":
+        if not os.path.exists(row[photo_path_col]):
+            stats["people_with_photo_warnings"].append(row["Full Name"])
+            return (
+                Image.open(path_to_default_photo),
+                "WARNING",
+                "Photo path provided but photo not found; default used",
+            )
+        try:
+            return (
+                Image.open(row[photo_path_col]),
+                "SUCCESS",
+                "Photo path provided and photo read",
+            )
+        except OSError:
+            stats["people_with_photo_warnings"].append(row["Full Name"])
+            return (
+                Image.open(path_to_default_photo),
+                "WARNING",
+                f"Could not read photo at `{row[photo_path_col]}`; default used",
+            )
+    return (
+        Image.open(path_to_default_photo),
+        "SUCCESS",
+        "No photo path provided",
+    )
+
+
 def _make_card(
     row: pd.Series,
     ax: axes.Axes,
@@ -701,7 +790,7 @@ def _make_card(
     # If the provided font size would cause its bottom boundary to come within 0.02
     # of the bottom of the card or exceed the bottom of the card (and therefore be
     # cut off), iteratively reduce the font size by 5% until this is no longer the case.
-    desc_font_size = layout.desc_font_size
+    current_font_size = layout.desc_font_size
     while True:
         desc_text = _WrapText(
             layout.name_x_coord,
@@ -709,7 +798,7 @@ def _make_card(
             _get_description_string_from_row(
                 row, first_name_col, last_name_col, photo_path_col
             ),
-            fontsize=desc_font_size,
+            fontsize=current_font_size,
             width=1 - layout.name_x_coord - name_right_padding,
             widthcoords=ax.transAxes,
             transform=ax.transAxes,
@@ -723,30 +812,11 @@ def _make_card(
             break
         else:
             desc_text.remove()
-            desc_font_size = desc_font_size * _FONT_SHRINK_FACTOR
+            current_font_size = current_font_size * _FONT_SHRINK_FACTOR
 
-    if row[photo_path_col] != "":
-        if not os.path.exists(row[photo_path_col]):
-            person_status = "WARNING"
-            person_status_msg = "Photo path provided but photo not found; default used"
-            stats["people_with_photo_warnings"].append(row["Full Name"])
-            img = Image.open(path_to_default_photo)
-        else:
-            try:
-                img = Image.open(row[photo_path_col])
-                person_status = "SUCCESS"
-                person_status_msg = "Photo path provided and photo read"
-            except OSError:
-                img = Image.open(path_to_default_photo)
-                person_status = "WARNING"
-                person_status_msg = (
-                    f"Could not read photo at `{row[photo_path_col]}`; default used"
-                )
-                stats["people_with_photo_warnings"].append(row["Full Name"])
-    else:
-        img = Image.open(path_to_default_photo)
-        person_status = "SUCCESS"
-        person_status_msg = "No photo path provided"
+    img, person_status, person_status_msg = _resolve_photo(
+        row, photo_path_col, path_to_default_photo, stats
+    )
 
     ax_inset = ax.inset_axes(layout.photo_axes_bounds, anchor="NW")
     ax_inset.imshow(img)
