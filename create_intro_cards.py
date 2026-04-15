@@ -4,7 +4,7 @@ import glob
 import logging
 import os
 import re
-from typing import TypedDict, cast
+from typing import TypedDict
 
 import matplotlib as mpl
 from matplotlib import axes
@@ -171,37 +171,15 @@ def make_pdf(
         whose photos could not be found or read
     :rtype: StatsDict
     """
-    if not os.path.exists(path_to_default_photo):
-        raise OSError(
-            "No photo exists at the specified default photo path. "
-            "Please specify a valid path."
-        )
-
-    try:
-        img = Image.open(path_to_default_photo)
-        img.close()
-    except OSError:
-        raise OSError(
-            f"Could not read the default photo at `{path_to_default_photo}`. "
-            "Make sure the photo is of a format supported by PIL."
-        )
+    _validate_inputs(
+        people_data, first_name_col, last_name_col, photo_path_col, path_to_default_photo
+    )
 
     if not os.path.exists(path_to_output_dir):
         try:
             os.makedirs(path_to_output_dir)
         except OSError:
             raise OSError(f"Failed to create `{path_to_output_dir}` directory.")
-
-    missing_columns = [
-        col
-        for col in [first_name_col, last_name_col, photo_path_col]
-        if col not in people_data.columns
-    ]
-    if missing_columns:
-        raise ValueError(
-            "The following columns are not in `people_data`: "
-            f"{', '.join(missing_columns)}. Please specify valid column names."
-        )
 
     logger_stream_handler = logging.StreamHandler()
     logger_stream_formatter = logging.Formatter("%(message)s")
@@ -234,12 +212,12 @@ def make_pdf(
             stats=stats,
         )
         figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
-        sorted_figure_image_paths = sorted(
-            figure_image_paths,
-            key=lambda x: int(
-                cast(re.Match[str], re.search(r"figure(\d+)\.png", x)).group(1)
-            ),
-        )
+        def _figure_sort_key(path: str) -> int:
+            match = re.search(r"figure(\d+)\.png", path)
+            assert match is not None, f"Unexpected filename format: {path}"
+            return int(match.group(1))
+
+        sorted_figure_image_paths = sorted(figure_image_paths, key=_figure_sort_key)
         first_img = Image.open(sorted_figure_image_paths[0])
         first_img.save(
             os.path.join(path_to_output_dir, "intro_cards.pdf"),
@@ -332,31 +310,9 @@ def make_pdf_preview(
         whose photos could not be found or read
     :rtype: StatsDict
     """
-    if not os.path.exists(path_to_default_photo):
-        raise OSError(
-            "No photo exists at the specified default photo path. "
-            "Please specify a valid path."
-        )
-
-    try:
-        img = Image.open(path_to_default_photo)
-        img.close()
-    except OSError:
-        raise OSError(
-            f"Could not read the default photo at `{path_to_default_photo}`. "
-            "Make sure the photo is of a format supported by PIL."
-        )
-
-    missing_columns = [
-        col
-        for col in [first_name_col, last_name_col, photo_path_col]
-        if col not in people_data.columns
-    ]
-    if missing_columns:
-        raise ValueError(
-            "The following columns are not in `people_data`: "
-            f"{', '.join(missing_columns)}. Please specify valid column names."
-        )
+    _validate_inputs(
+        people_data, first_name_col, last_name_col, photo_path_col, path_to_default_photo
+    )
 
     logger_stream_handler = logging.StreamHandler()
     logger_stream_formatter = logging.Formatter("%(message)s")
@@ -392,6 +348,67 @@ def make_pdf_preview(
         raise
     finally:
         logger.removeHandler(logger_stream_handler)
+
+
+def _validate_inputs(
+    people_data: pd.DataFrame,
+    first_name_col: str,
+    last_name_col: str,
+    photo_path_col: str,
+    path_to_default_photo: str,
+) -> None:
+    """Validate inputs shared by :func:`make_pdf` and :func:`make_pdf_preview`. Private
+    function.
+
+    Checks that the default photo exists and is readable by PIL, and that all required
+    columns are present in ``people_data``.
+
+    :param people_data: The pandas DataFrame containing all the data from which to make
+        intro cards
+    :type people_data: pd.DataFrame
+    :param first_name_col: The name of the column (Series) in ``people_data`` that
+        houses first names
+    :type first_name_col: str
+    :param last_name_col: The name of the column (Series) in ``people_data`` that houses
+        last names
+    :type last_name_col: str
+    :param photo_path_col: The name of the column (Series) in ``people_data`` that
+        houses paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the default photo to validate
+    :type path_to_default_photo: str
+    :raises OSError: If the default photo does not exist at the specified path or cannot
+        be read by PIL
+    :raises ValueError: If ``first_name_col``, ``last_name_col``, or ``photo_path_col``
+        cannot be found in ``people_data``
+    :return: None
+    :rtype: NoneType
+    """
+    if not os.path.exists(path_to_default_photo):
+        raise OSError(
+            "No photo exists at the specified default photo path. "
+            "Please specify a valid path."
+        )
+
+    try:
+        img = Image.open(path_to_default_photo)
+        img.close()
+    except OSError:
+        raise OSError(
+            f"Could not read the default photo at `{path_to_default_photo}`. "
+            "Make sure the photo is of a format supported by PIL."
+        )
+
+    missing_columns = [
+        col
+        for col in [first_name_col, last_name_col, photo_path_col]
+        if col not in people_data.columns
+    ]
+    if missing_columns:
+        raise ValueError(
+            "The following columns are not in `people_data`: "
+            f"{', '.join(missing_columns)}. Please specify valid column names."
+        )
 
 
 def _make_page_fig(
@@ -708,39 +725,39 @@ def _make_card(
             desc_text.remove()
             desc_font_size = desc_font_size * _FONT_SHRINK_FACTOR
 
-    if not row[photo_path_col] == "":
+    if row[photo_path_col] != "":
         if not os.path.exists(row[photo_path_col]):
             person_status = "WARNING"
             person_status_msg = "Photo path provided but photo not found; default used"
             stats["people_with_photo_warnings"].append(row["Full Name"])
-            img_to_open = path_to_default_photo
+            img = Image.open(path_to_default_photo)
         else:
             try:
                 img = Image.open(row[photo_path_col])
-                img.close()
                 person_status = "SUCCESS"
                 person_status_msg = "Photo path provided and photo read"
-                img_to_open = row[photo_path_col]
             except OSError:
+                img = Image.open(path_to_default_photo)
                 person_status = "WARNING"
                 person_status_msg = (
                     f"Could not read photo at `{row[photo_path_col]}`; default used"
                 )
                 stats["people_with_photo_warnings"].append(row["Full Name"])
-                img_to_open = path_to_default_photo
     else:
+        img = Image.open(path_to_default_photo)
         person_status = "SUCCESS"
         person_status_msg = "No photo path provided"
-        img_to_open = path_to_default_photo
 
     ax_inset = ax.inset_axes(layout.photo_axes_bounds, anchor="NW")
-    ax_inset.imshow(Image.open(img_to_open))
+    ax_inset.imshow(img)
+    img.close()
     ax_inset.tick_params(axis="both", which="both", length=0)
-    ax_inset.set_xticklabels([])
-    ax_inset.set_yticklabels([])
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_visible(True)
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_color("black")
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_linewidth(0.1)
+    ax_inset.set_xticks([])
+    ax_inset.set_yticks([])
+    for spine in ax_inset.spines.values():
+        spine.set_visible(True)
+        spine.set_color("black")
+        spine.set_linewidth(0.1)
 
     current_progress_for_log_message = (
         f"[{stats['number_of_cards_created'] + 1}/{stats['number_of_cards_to_create']}]"
@@ -789,7 +806,7 @@ def _get_description_string_from_row(
     desc_string_components = [
         f"${column_name}:$ {attribute_value}"
         for column_name, attribute_value in row_attributes_ex_names_and_photo.items()
-        if not attribute_value == ""
+        if attribute_value != ""
     ]
 
     return "\n".join(desc_string_components)
@@ -888,20 +905,6 @@ class _WrapText(Text):
         :rtype: float
         """
         return self.width
-
-
-def _ceil_div(dividend: float, divisor: float) -> float:
-    """Perform ceiling division using upside-down floor division, which avoids
-    introducing floating-point error. Private function.
-
-    :param dividend: The dividend of the ceiling division operation
-    :type dividend: float
-    :param divisor: The divisor of the ceiling division operation
-    :type divisor: float
-    :return: The result of the ceiling division
-    :rtype: float
-    """
-    return -(dividend // -divisor)
 
 
 def _format_data_and_derive_full_names(
