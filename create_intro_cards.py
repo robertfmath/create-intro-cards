@@ -72,6 +72,13 @@ mpl.use("module://matplotlib_inline.backend_inline")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+_SAVEFIG_DPI = 175
+_PREVIEW_DPI = 300
+_PDF_RESOLUTION = _SAVEFIG_DPI  # Must match _SAVEFIG_DPI so inch dimensions are preserved
+_FONT_SHRINK_FACTOR = 0.95
+_BOTTOM_MARGIN = 0.02
+_CARDS_PER_PAGE = 4
+
 
 def make_pdf(
     people_data: pd.DataFrame,
@@ -236,8 +243,7 @@ def make_pdf(
         first_img = Image.open(sorted_figure_image_paths[0])
         first_img.save(
             os.path.join(path_to_output_dir, "intro_cards.pdf"),
-            # dpi; same value as in plt.subplots() so inch dimensions are preserved
-            resolution=175,
+            resolution=_PDF_RESOLUTION,
             save_all=True,
             append_images=(Image.open(path) for path in sorted_figure_image_paths[1:]),
         )
@@ -388,6 +394,63 @@ def make_pdf_preview(
         logger.removeHandler(logger_stream_handler)
 
 
+def _make_page_fig(
+    batch: pd.DataFrame,
+    first_name_col: str,
+    last_name_col: str,
+    photo_path_col: str,
+    path_to_default_photo: str,
+    layout: CardLayout,
+    dpi: int,
+    stats: StatsDict,
+) -> mpl.figure.Figure:
+    """Create and populate a single page figure with up to ``_CARDS_PER_PAGE`` intro
+    cards. Private function.
+
+    :param batch: A slice of the processed ``people_data`` DataFrame containing up to
+        ``_CARDS_PER_PAGE`` rows to render on this page
+    :type batch: pd.DataFrame
+    :param first_name_col: The name of the column (Series) in ``people_data`` that
+        houses first names
+    :type first_name_col: str
+    :param last_name_col: The name of the column (Series) in ``people_data`` that houses
+        last names
+    :type last_name_col: str
+    :param photo_path_col: The name of the column (Series) in ``people_data`` that
+        houses paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the photo to use if an individual does not
+        have a photo path listed or the photo cannot be read
+    :type path_to_default_photo: str
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: CardLayout
+    :param dpi: Resolution in dots per inch for the figure
+    :type dpi: int
+    :param stats: Metadata pertaining to the number of intro cards that were created,
+        the number of people for whom cards needed to be generated, and the names of
+        people whose photos could not be found or read
+    :type stats: StatsDict
+    :return: The populated Matplotlib figure for this page
+    :rtype: mpl.figure.Figure
+    """
+    fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=dpi)
+    fig.tight_layout(h_pad=0.1, w_pad=0.1)
+    for ax in axs.ravel():
+        ax.axis("off")
+    for row, ax in zip(batch.iterrows(), axs.ravel()):
+        _make_card(
+            row[1],
+            ax,
+            first_name_col,
+            last_name_col,
+            photo_path_col,
+            path_to_default_photo,
+            layout,
+            stats=stats,
+        )
+    return fig
+
+
 def _make_figs(
     people_data: pd.DataFrame,
     first_name_col: str,
@@ -453,32 +516,20 @@ def _make_figs(
     )
 
     with mpl.rc_context({"mathtext.default": "bf"}):
-        start_ind = 0
-        for i in np.arange(_ceil_div(people_data.shape[0], 4)):
-            if start_ind + 4 <= people_data.shape[0]:
-                end_ind = start_ind + 4
-            else:
-                end_ind = people_data.shape[0]
-            fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=175)
-            fig.tight_layout(h_pad=0.1, w_pad=0.1)
-            for ax in axs.ravel():
-                ax.axis("off")
-            for row, ax in zip(
-                people_data.iloc[start_ind:end_ind].iterrows(), axs.ravel()
-            ):
-                _make_card(
-                    row[1],
-                    ax,
-                    first_name_col,
-                    last_name_col,
-                    photo_path_col,
-                    path_to_default_photo,
-                    layout,
-                    stats=stats,
-                )
-            fig.savefig(os.path.join(path_to_output_dir, f"figure{i + 1}.png"))
+        for i, start in enumerate(range(0, len(people_data), _CARDS_PER_PAGE), start=1):
+            batch = people_data.iloc[start : start + _CARDS_PER_PAGE]
+            fig = _make_page_fig(
+                batch,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                layout,
+                dpi=_SAVEFIG_DPI,
+                stats=stats,
+            )
+            fig.savefig(os.path.join(path_to_output_dir, f"figure{i}.png"))
             plt.close(fig)
-            start_ind += 4
 
 
 def _make_fig_preview(
@@ -543,24 +594,20 @@ def _make_fig_preview(
     plt.close("all")
 
     with mpl.rc_context({"mathtext.default": "bf"}):
-        end_ind = min(people_data.shape[0], 4)
-        # Here, dpi controls the resolution of figure preview in interactive environment
-        fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=300)
-        fig.tight_layout(h_pad=0.1, w_pad=0.1)
-        for ax in axs.ravel():
-            ax.axis("off")
-        for row, ax in zip(people_data.iloc[0:end_ind].iterrows(), axs.ravel()):
-            _make_card(
-                row[1],
-                ax,
-                first_name_col,
-                last_name_col,
-                photo_path_col,
-                path_to_default_photo,
-                layout,
-                stats=stats,
-            )
+        batch = people_data.iloc[0:_CARDS_PER_PAGE]
+        # dpi controls the resolution of figure preview in interactive environment
+        fig = _make_page_fig(
+            batch,
+            first_name_col,
+            last_name_col,
+            photo_path_col,
+            path_to_default_photo,
+            layout,
+            dpi=_PREVIEW_DPI,
+            stats=stats,
+        )
         plt.show()  # Needs to be called explicitly to properly render Mathtext in bold
+        plt.close(fig)
 
 
 def _make_card(
@@ -655,11 +702,11 @@ def _make_card(
         ax.add_artist(desc_text)
         desc_text_bbox = desc_text.get_window_extent()  # In display coordinates
         desc_text_bbox_ax_coords = desc_text_bbox.transformed(ax.transAxes.inverted())
-        if desc_text_bbox_ax_coords.y0 >= 0.02:
+        if desc_text_bbox_ax_coords.y0 >= _BOTTOM_MARGIN:
             break
         else:
             desc_text.remove()
-            desc_font_size = desc_font_size * 0.95
+            desc_font_size = desc_font_size * _FONT_SHRINK_FACTOR
 
     if not row[photo_path_col] == "":
         if not os.path.exists(row[photo_path_col]):
