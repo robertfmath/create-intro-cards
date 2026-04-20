@@ -43,7 +43,7 @@ Documentation = "https://robertfmath.github.io/create-intro-cards"
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py311"
 
 [tool.ruff.format]
 quote-style = "double"
