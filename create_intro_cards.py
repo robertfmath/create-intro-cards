@@ -30,7 +30,7 @@ class StatsDict(TypedDict):
 
 
 @dataclass
-class CardLayout:
+class _CardLayout:
     """Layout and formatting parameters for intro cards.
 
     :param figure_size: Width and height of each page figure in inches, defaults to
@@ -89,7 +89,13 @@ def make_pdf(
     photo_path_col: str,
     path_to_default_photo: str,
     path_to_output_dir: str = "./intro_cards_output",
-    layout: CardLayout = CardLayout(),
+    figure_size: tuple[float, float] = (23, 13),
+    name_x_coord: float = 0.35,
+    name_y_coord: float = 0.95,
+    name_font_size: float = 50,
+    desc_padding: float = 0.05,
+    desc_font_size: float = 16,
+    photo_axes_bounds: tuple[float, float, float, float] = (0.02, 0.02, 0.3, 0.93),
 ) -> StatsDict:
     r"""Generate a PDF containing intro cards for all individuals in ``people_data``.
 
@@ -159,10 +165,39 @@ def make_pdf(
         this argument using a single-backlash separator, make sure to use a raw string.,
         defaults to 'intro_cards_output'
     :type path_to_output_dir: str, optional
-    :param layout: Layout and formatting parameters controlling figure size, name and
-        description placement, font sizes, and photo bounds. See :class:`CardLayout` for
-        all options and defaults., defaults to CardLayout()
-    :type layout: CardLayout, optional
+    :param figure_size: The size of the figure that Matplotlib will create when plotting
+        a batch of four intro cards on it. The first entry in this tuple is the width of
+        the figure and the second is the height (both in inches). Each figure will
+        ultimately become its own page in the PDF., defaults to (23, 13)
+    :type figure_size: tuple[float, float], optional
+    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
+        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
+        individuals' descriptions., defaults to 0.35
+    :type name_x_coord: float, optional
+    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
+        intro cards (which are Matplotlib Axes), defaults to 0.95
+    :type name_y_coord: float, optional
+    :param name_font_size: The font size of individuals' names on their intro cards,
+        defaults to 50
+    :type name_font_size: float, optional
+    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
+        lower bound of the name's bounding box, after which to begin plotting the
+        individual's description, defaults to 0.05
+    :type desc_padding: float, optional
+    :param desc_font_size: The font size of individuals' descriptions on their intro
+        cards. If this font size would cause the lower bound of the description's
+        bounding box to come within 0.02 of the bottom of any individual's intro card
+        (or even exceed it and be cut off), then this font size will be iteratively
+        reduced by 5% on that specific intro card until this is no longer the case.,
+        defaults to 16
+    :type desc_font_size: float, optional
+    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
+        (the photo Axes is inset within the main intro card Axes). The bounds should be
+        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
+        corner of the photo Axes. The photo will ultimately grow from the upper-left
+        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
+        relative., defaults to (0.02, 0.02, 0.3, 0.93)
+    :type photo_axes_bounds: tuple[float, float, float, float], optional
     :raises OSError: If the default photo does not exist at the specified path, or if
         the default photo cannot be read by PIL, or if the specified output directory
         does not exist and then cannot be created
@@ -179,6 +214,16 @@ def make_pdf(
         last_name_col,
         photo_path_col,
         path_to_default_photo,
+    )
+
+    layout = _CardLayout(
+        figure_size=figure_size,
+        name_x_coord=name_x_coord,
+        name_y_coord=name_y_coord,
+        name_font_size=name_font_size,
+        desc_padding=desc_padding,
+        desc_font_size=desc_font_size,
+        photo_axes_bounds=photo_axes_bounds,
     )
 
     if not os.path.exists(path_to_output_dir):
@@ -248,7 +293,13 @@ def make_pdf_preview(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    layout: CardLayout = CardLayout(),
+    figure_size: tuple[float, float] = (23, 13),
+    name_x_coord: float = 0.35,
+    name_y_coord: float = 0.95,
+    name_font_size: float = 50,
+    desc_padding: float = 0.05,
+    desc_font_size: float = 16,
+    photo_axes_bounds: tuple[float, float, float, float] = (0.02, 0.02, 0.3, 0.93),
 ) -> StatsDict:
     """Show a preview in a Jupyter environment of the first page of the PDF that would
     be created if :func:`make_pdf` were run, and print log output to the console.
@@ -293,10 +344,39 @@ def make_pdf_preview(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param layout: Layout and formatting parameters controlling figure size, name and
-        description placement, font sizes, and photo bounds. See :class:`CardLayout` for
-        all options and defaults., defaults to CardLayout()
-    :type layout: CardLayout, optional
+    :param figure_size: The size of the figure that Matplotlib will create when plotting
+        a batch of four intro cards on it. The first entry in this tuple is the width of
+        the figure and the second is the height (both in inches). Each figure will
+        ultimately become its own page in the PDF., defaults to (23, 13)
+    :type figure_size: tuple[float, float], optional
+    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
+        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
+        individuals' descriptions., defaults to 0.35
+    :type name_x_coord: float, optional
+    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
+        intro cards (which are Matplotlib Axes), defaults to 0.95
+    :type name_y_coord: float, optional
+    :param name_font_size: The font size of individuals' names on their intro cards,
+        defaults to 50
+    :type name_font_size: float, optional
+    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
+        lower bound of the name's bounding box, after which to begin plotting the
+        individual's description, defaults to 0.05
+    :type desc_padding: float, optional
+    :param desc_font_size: The font size of individuals' descriptions on their intro
+        cards. If this font size would cause the lower bound of the description's
+        bounding box to come within 0.02 of the bottom of any individual's intro card
+        (or even exceed it and be cut off), then this font size will be iteratively
+        reduced by 5% on that specific intro card until this is no longer the case.,
+        defaults to 16
+    :type desc_font_size: float, optional
+    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
+        (the photo Axes is inset within the main intro card Axes). The bounds should be
+        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
+        corner of the photo Axes. The photo will ultimately grow from the upper-left
+        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
+        relative., defaults to (0.02, 0.02, 0.3, 0.93)
+    :type photo_axes_bounds: tuple[float, float, float, float], optional
     :raises OSError: If the default photo does not exist at the specified path, or if
         the default photo cannot be read by PIL
     :raises ValueError: If ``first_name_col``, ``last_name_col``, or ``photo_path_col``
@@ -312,6 +392,16 @@ def make_pdf_preview(
         last_name_col,
         photo_path_col,
         path_to_default_photo,
+    )
+
+    layout = _CardLayout(
+        figure_size=figure_size,
+        name_x_coord=name_x_coord,
+        name_y_coord=name_y_coord,
+        name_font_size=name_font_size,
+        desc_padding=desc_padding,
+        desc_font_size=desc_font_size,
+        photo_axes_bounds=photo_axes_bounds,
     )
 
     stats: StatsDict = {
@@ -453,7 +543,7 @@ def _make_page_fig(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    layout: CardLayout,
+    layout: _CardLayout,
     dpi: int,
     stats: StatsDict,
 ) -> mpl.figure.Figure:
@@ -476,7 +566,7 @@ def _make_page_fig(
         have a photo path listed or the photo cannot be read
     :type path_to_default_photo: str
     :param layout: Layout and formatting parameters for the cards
-    :type layout: CardLayout
+    :type layout: _CardLayout
     :param dpi: Resolution in dots per inch for the figure
     :type dpi: int
     :param stats: Metadata pertaining to the number of intro cards that were created,
@@ -511,7 +601,7 @@ def _make_figs(
     photo_path_col: str,
     path_to_default_photo: str,
     path_to_output_dir: str,
-    layout: CardLayout,
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Iteratively grab batches of four rows (individuals) from ``people_data``, and for
@@ -556,7 +646,7 @@ def _make_figs(
         this argument using a single-backlash separator, make sure to use a raw string.
     :type path_to_output_dir: str
     :param layout: Layout and formatting parameters for the cards
-    :type layout: CardLayout
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -591,7 +681,7 @@ def _make_fig_preview(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    layout: CardLayout,
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Show a preview (using :func:`plt.show`) of the first page of the PDF that would
@@ -632,7 +722,7 @@ def _make_fig_preview(
         raw string.
     :type path_to_default_photo: str
     :param layout: Layout and formatting parameters for the cards
-    :type layout: CardLayout
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -723,7 +813,7 @@ def _make_card(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    layout: CardLayout,
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Create a single intro card by plotting an individual's name, photo, and
@@ -753,7 +843,7 @@ def _make_card(
         raw string.
     :type path_to_default_photo: str
     :param layout: Layout and formatting parameters for the card
-    :type layout: CardLayout
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
