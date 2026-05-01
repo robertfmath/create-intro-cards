@@ -7,16 +7,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 All commands use `uv run` as the package manager.
 
 **Run all tests:**
+
 ```bash
 uv run -m unittest tests/test_create_intro_cards.py
 ```
 
 **Run a single test:**
+
 ```bash
 uv run -m unittest tests.test_create_intro_cards.TestMakePDF.test_pdf_file_created
 ```
 
 **Format and lint:**
+
 ```bash
 uv run ruff format create_intro_cards.py tests/test_create_intro_cards.py
 uv run ruff check create_intro_cards.py tests/test_create_intro_cards.py
@@ -24,6 +27,7 @@ uv run docformatter --in-place create_intro_cards.py tests/test_create_intro_car
 ```
 
 **Run all checks locally (format, lint, test, docs):**
+
 ```bash
 ./format-test-and-build-docs.sh
 ```
