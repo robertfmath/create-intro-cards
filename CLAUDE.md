@@ -8,12 +8,12 @@ All commands use `uv run` as the package manager.
 
 **Run all tests:**
 ```bash
-uv run python -m unittest tests/test_create_intro_cards.py
+uv run -m unittest tests/test_create_intro_cards.py
 ```
 
 **Run a single test:**
 ```bash
-uv run python -m unittest tests.test_create_intro_cards.TestMakePDF.test_pdf_file_created
+uv run -m unittest tests.test_create_intro_cards.TestMakePDF.test_pdf_file_created
 ```
 
 **Format and lint:**

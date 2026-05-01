@@ -40,7 +40,7 @@ fi
 
 # Run tests
 echo "Running tests"
-uv run python -m unittest tests/test_create_intro_cards.py
+uv run -m unittest tests/test_create_intro_cards.py
 if [ $? -ne 0 ]; then
     echo "Tests failed."
     exit 1
