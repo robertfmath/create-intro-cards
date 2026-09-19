@@ -27,7 +27,6 @@ The generated PDF contains all individuals' intro cards, arranged four per page.
 
 ## Dependencies
 
-- NumPy
 - Pandas
 - Matplotlib
 - Pillow
