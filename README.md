@@ -33,7 +33,7 @@ The generated PDF contains all individuals' intro cards, arranged four per page.
 - Pillow
 - ipykernel
 
-For a full list of dependencies&mdash;both direct and transitive&mdash;please refer to the provided `requirements.txt` file. The `requirements-dev.txt` file provides additional dependencies for development&mdash;namely Ruff, docformatter, Sphinx, and pypdf.
+All dependencies and their version constraints are declared in `pyproject.toml`. Development tools (Ruff, docformatter, Sphinx, pypdf) are specified in the `[dependency-groups]` section and can be installed with `uv sync --group dev`.
 
 ## Installation
 
@@ -77,6 +77,9 @@ make_pdf(
     "path/to/output/dir",
     figure_size=(20, 10),
     name_x_coord=0.40,
+    name_y_coord=0.95,
+    name_font_size=50,
+    desc_padding=0.05,
     desc_font_size=14,
     photo_axes_bounds=(0.01, 0.02, 0.2, 0.92)
 )
@@ -93,6 +96,9 @@ make_pdf_preview(
     "path/to/default/photo.png",
     figure_size=(20, 10),
     name_x_coord=0.40,
+    name_y_coord=0.95,
+    name_font_size=50,
+    desc_padding=0.05,
     desc_font_size=14,
     photo_axes_bounds=(0.01, 0.02, 0.2, 0.92)
 )

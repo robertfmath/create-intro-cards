@@ -2,14 +2,22 @@
 requires = ["setuptools>=70", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+dev = [
+    "ruff>=0.9.9",
+    "docformatter>=1.7.5",
+    "Sphinx>=7.2.6",
+    "pypdf>=5",
+    "typing_extensions>=4.6"
+]
+
 [project]
 name = "create-intro-cards"
-version = "1.0.5"
+version = "1.0.6"
 description = """Convert a dataset of individuals' names, photos, and custom attributes into a PDF of “intro cards” that describe each individual."""
 authors = [{name = "Bobby Math"}]
 license = {file = "LICENSE.txt"}
 dependencies = [
-    "numpy>=1.26.1",
     "pandas>=2.1.2",
     "matplotlib>=3.8.1",
     "Pillow>=10.1.0",
@@ -28,22 +36,13 @@ readme = {file = "README.md", content-type = "text/markdown"}
 keywords = ["introductions", "intro", "cards", "matplotlib", "pdf", "visualization"]
 requires-python = ">=3.11"
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.9.9",
-    "docformatter>=1.7.5",
-    "Sphinx>=7.2.6",
-    "pypdf>=5",
-    "typing_extensions>=4.6"
-]
-
 [project.urls]
 Homepage = "https://www.github.com/robertfmath/create-intro-cards"
 Documentation = "https://robertfmath.github.io/create-intro-cards"
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py311"
 
 [tool.ruff.format]
 quote-style = "double"

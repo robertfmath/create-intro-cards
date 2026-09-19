@@ -1,16 +1,17 @@
+from dataclasses import dataclass, field
 from datetime import datetime
 import glob
 import logging
 import os
 import re
-from typing import TypedDict, cast
+from contextlib import contextmanager
+from typing import Generator, TypedDict
 
 import matplotlib as mpl
 from matplotlib import axes
 from matplotlib.text import Text
 from matplotlib.transforms import Transform
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from PIL import Image
 
@@ -28,11 +29,58 @@ class StatsDict(TypedDict):
     """The names of people whose photos could not be found or read."""
 
 
+@dataclass
+class _CardLayout:
+    """Layout and formatting parameters for intro cards.
+
+    :param figure_size: Width and height of each page figure in inches, defaults to (23,
+        13)
+    :type figure_size: tuple[float, float], optional
+    :param name_x_coord: Axes-relative x-coordinate of the name (and description) on
+        each card, defaults to 0.35
+    :type name_x_coord: float, optional
+    :param name_y_coord: Axes-relative y-coordinate of the name on each card, defaults
+        to 0.95
+    :type name_y_coord: float, optional
+    :param name_font_size: Font size of the name on each card, defaults to 50
+    :type name_font_size: float, optional
+    :param desc_padding: Axes-relative padding between the bottom of the name bounding
+        box and the top of the description, defaults to 0.05
+    :type desc_padding: float, optional
+    :param desc_font_size: Font size of the description on each card. Iteratively
+        reduced by 5% if the description would overflow the bottom of the card, defaults
+        to 16
+    :type desc_font_size: float, optional
+    :param photo_axes_bounds: Bounds of the inset photo Axes as (x0, y0, width, height)
+        in Axes-relative coordinates, defaults to (0.02, 0.02, 0.3, 0.93)
+    :type photo_axes_bounds: tuple[float, float, float, float], optional
+    """
+
+    figure_size: tuple[float, float] = (23, 13)
+    name_x_coord: float = 0.35
+    name_y_coord: float = 0.95
+    name_font_size: float = 50
+    desc_padding: float = 0.05
+    desc_font_size: float = 16
+    photo_axes_bounds: tuple[float, float, float, float] = field(
+        default_factory=lambda: (0.02, 0.02, 0.3, 0.93)
+    )
+
+
 # Required for ``make_pdf_preview``; matches Agg backend of `savefig` in `make_pdf`
 mpl.use("module://matplotlib_inline.backend_inline")
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+_SAVEFIG_DPI = 175
+_PREVIEW_DPI = 300
+_PDF_RESOLUTION = (
+    _SAVEFIG_DPI  # Must match _SAVEFIG_DPI so inch dimensions are preserved
+)
+_FONT_SHRINK_FACTOR = 0.95
+_BOTTOM_MARGIN = 0.02
+_CARDS_PER_PAGE = 4
 
 
 def make_pdf(
@@ -161,20 +209,23 @@ def make_pdf(
         whose photos could not be found or read
     :rtype: StatsDict
     """
-    if not os.path.exists(path_to_default_photo):
-        raise OSError(
-            "No photo exists at the specified default photo path. "
-            "Please specify a valid path."
-        )
+    _validate_inputs(
+        people_data,
+        first_name_col,
+        last_name_col,
+        photo_path_col,
+        path_to_default_photo,
+    )
 
-    try:
-        img = Image.open(path_to_default_photo)
-        img.close()
-    except OSError:
-        raise OSError(
-            f"Could not read the default photo at `{path_to_default_photo}`. "
-            "Make sure the photo is of a format supported by PIL."
-        )
+    layout = _CardLayout(
+        figure_size=figure_size,
+        name_x_coord=name_x_coord,
+        name_y_coord=name_y_coord,
+        name_font_size=name_font_size,
+        desc_padding=desc_padding,
+        desc_font_size=desc_font_size,
+        photo_axes_bounds=photo_axes_bounds,
+    )
 
     if not os.path.exists(path_to_output_dir):
         try:
@@ -182,29 +233,8 @@ def make_pdf(
         except OSError:
             raise OSError(f"Failed to create `{path_to_output_dir}` directory.")
 
-    missing_columns = [
-        col
-        for col in [first_name_col, last_name_col, photo_path_col]
-        if col not in people_data.columns
-    ]
-    if missing_columns:
-        raise ValueError(
-            "The following columns are not in `people_data`: "
-            f"{', '.join(missing_columns)}. Please specify valid column names."
-        )
-
-    logger_stream_handler = logging.StreamHandler()
-    logger_stream_formatter = logging.Formatter("%(message)s")
-    logger_stream_handler.setFormatter(logger_stream_formatter)
-    logger.addHandler(logger_stream_handler)
-
     local_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-    logger_file_handler = logging.FileHandler(
-        os.path.join(path_to_output_dir, f"names_{local_timestamp}.log"), mode="w"
-    )
-    logger_file_formatter = logging.Formatter("%(message)s")
-    logger_file_handler.setFormatter(logger_file_formatter)
-    logger.addHandler(logger_file_handler)
+    log_file_path = os.path.join(path_to_output_dir, f"names_{local_timestamp}.log")
 
     stats: StatsDict = {
         "number_of_cards_created": 0,
@@ -212,57 +242,50 @@ def make_pdf(
         "people_with_photo_warnings": [],
     }
 
-    try:
-        _make_figs(
-            people_data,
-            first_name_col,
-            last_name_col,
-            photo_path_col,
-            path_to_default_photo,
-            path_to_output_dir,
-            figure_size,
-            name_x_coord,
-            name_y_coord,
-            name_font_size,
-            desc_padding,
-            desc_font_size,
-            photo_axes_bounds,
-            stats=stats,
-        )
-        figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
-        sorted_figure_image_paths = sorted(
-            figure_image_paths,
-            key=lambda x: int(
-                cast(re.Match[str], re.search(r"figure(\d+)\.png", x)).group(1)
-            ),
-        )
-        first_img = Image.open(sorted_figure_image_paths[0])
-        first_img.save(
-            os.path.join(path_to_output_dir, "intro_cards.pdf"),
-            # dpi; same value as in plt.subplots() so inch dimensions are preserved
-            resolution=175,
-            save_all=True,
-            append_images=(Image.open(path) for path in sorted_figure_image_paths[1:]),
-        )
-
-        logger.info(
-            f"\n\nComplete! See the directory `{path_to_output_dir}` for the PDF.\n"
-        )
-        if stats["people_with_photo_warnings"]:
-            logger.info(
-                "WARNING: Photos could not be found or read at the specified paths "
-                "for the name(s) below. Please confirm the path(s) are valid and that "
-                "the photo(s) are of a format supported by PIL.\n"
+    with _log_to_stream_and_file(log_file_path):
+        try:
+            _make_figs(
+                people_data,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                path_to_output_dir,
+                layout,
+                stats=stats,
             )
-            logger.info("\n".join(stats["people_with_photo_warnings"]))
-        return stats
-    except Exception as e:
-        logger.error(e)
-        raise
-    finally:
-        logger.removeHandler(logger_stream_handler)
-        logger_file_handler.close()
-        logger.removeHandler(logger_file_handler)
+            figure_image_paths = glob.glob(os.path.join(path_to_output_dir, "*.png"))
+
+            def _figure_sort_key(path: str) -> int:
+                match = re.search(r"figure(\d+)\.png", path)
+                assert match is not None, f"Unexpected filename format: {path}"
+                return int(match.group(1))
+
+            sorted_figure_image_paths = sorted(figure_image_paths, key=_figure_sort_key)
+            first_img = Image.open(sorted_figure_image_paths[0])
+            first_img.save(
+                os.path.join(path_to_output_dir, "intro_cards.pdf"),
+                resolution=_PDF_RESOLUTION,
+                save_all=True,
+                append_images=(
+                    Image.open(path) for path in sorted_figure_image_paths[1:]
+                ),
+            )
+
+            logger.info(
+                f"\n\nComplete! See the directory `{path_to_output_dir}` for the PDF.\n"
+            )
+            if stats["people_with_photo_warnings"]:
+                logger.info(
+                    "WARNING: Photos could not be found or read at the specified paths "
+                    "for the name(s) below. Please confirm the path(s) are valid and that "
+                    "the photo(s) are of a format supported by PIL.\n"
+                )
+                logger.info("\n".join(stats["people_with_photo_warnings"]))
+            return stats
+        except Exception as e:
+            logger.error(e)
+            raise
 
 
 def make_pdf_preview(
@@ -364,6 +387,130 @@ def make_pdf_preview(
         whose photos could not be found or read
     :rtype: StatsDict
     """
+    _validate_inputs(
+        people_data,
+        first_name_col,
+        last_name_col,
+        photo_path_col,
+        path_to_default_photo,
+    )
+
+    layout = _CardLayout(
+        figure_size=figure_size,
+        name_x_coord=name_x_coord,
+        name_y_coord=name_y_coord,
+        name_font_size=name_font_size,
+        desc_padding=desc_padding,
+        desc_font_size=desc_font_size,
+        photo_axes_bounds=photo_axes_bounds,
+    )
+
+    stats: StatsDict = {
+        "number_of_cards_created": 0,
+        "number_of_cards_to_create": min(people_data.shape[0], 4),
+        "people_with_photo_warnings": [],
+    }
+
+    with _log_to_stream():
+        try:
+            _make_fig_preview(
+                people_data,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                layout,
+                stats=stats,
+            )
+
+            if stats["people_with_photo_warnings"]:
+                logger.info(
+                    "WARNING: Photos could not be found at the specified paths "
+                    "for the name(s) below. Please confirm the photo path(s).\n"
+                )
+                logger.info("\n".join(stats["people_with_photo_warnings"]))
+            return stats
+        except Exception as e:
+            logger.error(e)
+            raise
+
+
+@contextmanager
+def _log_to_stream_and_file(file_path: str) -> Generator[None, None, None]:
+    """Context manager that adds a stream handler and a file handler to the module
+    logger for the duration of the ``with`` block, then removes them on exit. Private
+    function.
+
+    :param file_path: Path to the log file to write
+    :type file_path: str
+    :return: None
+    :rtype: Generator[None, None, None]
+    """
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter("%(message)s"))
+    file_handler = logging.FileHandler(file_path, mode="w")
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    try:
+        yield
+    finally:
+        logger.removeHandler(stream_handler)
+        file_handler.close()
+        logger.removeHandler(file_handler)
+
+
+@contextmanager
+def _log_to_stream() -> Generator[None, None, None]:
+    """Context manager that adds a stream handler to the module logger for the duration
+    of the ``with`` block, then removes it on exit. Private function.
+
+    :return: None
+    :rtype: Generator[None, None, None]
+    """
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(stream_handler)
+    try:
+        yield
+    finally:
+        logger.removeHandler(stream_handler)
+
+
+def _validate_inputs(
+    people_data: pd.DataFrame,
+    first_name_col: str,
+    last_name_col: str,
+    photo_path_col: str,
+    path_to_default_photo: str,
+) -> None:
+    """Validate inputs shared by :func:`make_pdf` and :func:`make_pdf_preview`. Private
+    function.
+
+    Checks that the default photo exists and is readable by PIL, and that all required
+    columns are present in ``people_data``.
+
+    :param people_data: The pandas DataFrame containing all the data from which to make
+        intro cards
+    :type people_data: pd.DataFrame
+    :param first_name_col: The name of the column (Series) in ``people_data`` that
+        houses first names
+    :type first_name_col: str
+    :param last_name_col: The name of the column (Series) in ``people_data`` that houses
+        last names
+    :type last_name_col: str
+    :param photo_path_col: The name of the column (Series) in ``people_data`` that
+        houses paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the default photo to validate
+    :type path_to_default_photo: str
+    :raises OSError: If the default photo does not exist at the specified path or cannot
+        be read by PIL
+    :raises ValueError: If ``first_name_col``, ``last_name_col``, or ``photo_path_col``
+        cannot be found in ``people_data``
+    :return: None
+    :rtype: NoneType
+    """
     if not os.path.exists(path_to_default_photo):
         raise OSError(
             "No photo exists at the specified default photo path. "
@@ -390,46 +537,62 @@ def make_pdf_preview(
             f"{', '.join(missing_columns)}. Please specify valid column names."
         )
 
-    logger_stream_handler = logging.StreamHandler()
-    logger_stream_formatter = logging.Formatter("%(message)s")
-    logger_stream_handler.setFormatter(logger_stream_formatter)
-    logger.addHandler(logger_stream_handler)
 
-    stats: StatsDict = {
-        "number_of_cards_created": 0,
-        "number_of_cards_to_create": min(people_data.shape[0], 4),
-        "people_with_photo_warnings": [],
-    }
+def _make_page_fig(
+    batch: pd.DataFrame,
+    first_name_col: str,
+    last_name_col: str,
+    photo_path_col: str,
+    path_to_default_photo: str,
+    layout: _CardLayout,
+    dpi: int,
+    stats: StatsDict,
+) -> mpl.figure.Figure:
+    """Create and populate a single page figure with up to ``_CARDS_PER_PAGE`` intro
+    cards. Private function.
 
-    try:
-        _make_fig_preview(
-            people_data,
+    :param batch: A slice of the processed ``people_data`` DataFrame containing up to
+        ``_CARDS_PER_PAGE`` rows to render on this page
+    :type batch: pd.DataFrame
+    :param first_name_col: The name of the column (Series) in ``people_data`` that
+        houses first names
+    :type first_name_col: str
+    :param last_name_col: The name of the column (Series) in ``people_data`` that houses
+        last names
+    :type last_name_col: str
+    :param photo_path_col: The name of the column (Series) in ``people_data`` that
+        houses paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the photo to use if an individual does not
+        have a photo path listed or the photo cannot be read
+    :type path_to_default_photo: str
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: _CardLayout
+    :param dpi: Resolution in dots per inch for the figure
+    :type dpi: int
+    :param stats: Metadata pertaining to the number of intro cards that were created,
+        the number of people for whom cards needed to be generated, and the names of
+        people whose photos could not be found or read
+    :type stats: StatsDict
+    :return: The populated Matplotlib figure for this page
+    :rtype: mpl.figure.Figure
+    """
+    fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=dpi)
+    fig.tight_layout(h_pad=0.1, w_pad=0.1)
+    for ax in axs.ravel():
+        ax.axis("off")
+    for row, ax in zip(batch.iterrows(), axs.ravel()):
+        _make_card(
+            row[1],
+            ax,
             first_name_col,
             last_name_col,
             photo_path_col,
             path_to_default_photo,
-            figure_size,
-            name_x_coord,
-            name_y_coord,
-            name_font_size,
-            desc_padding,
-            desc_font_size,
-            photo_axes_bounds,
+            layout,
             stats=stats,
         )
-
-        if stats["people_with_photo_warnings"]:
-            logger.info(
-                "WARNING: Photos could not be found at the specified paths "
-                "for the name(s) below. Please confirm the photo path(s).\n"
-            )
-            logger.info("\n".join(stats["people_with_photo_warnings"]))
-        return stats
-    except Exception as e:
-        logger.error(e)
-        raise
-    finally:
-        logger.removeHandler(logger_stream_handler)
+    return fig
 
 
 def _make_figs(
@@ -439,13 +602,7 @@ def _make_figs(
     photo_path_col: str,
     path_to_default_photo: str,
     path_to_output_dir: str,
-    figure_size: tuple[float, float],
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Iteratively grab batches of four rows (individuals) from ``people_data``, and for
@@ -489,38 +646,8 @@ def _make_figs(
         the log file. If it does not exist, it will be created at runtime. If specifying
         this argument using a single-backlash separator, make sure to use a raw string.
     :type path_to_output_dir: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of individuals' names on their intro cards
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.,
-        defaults to 16
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -533,37 +660,20 @@ def _make_figs(
     )
 
     with mpl.rc_context({"mathtext.default": "bf"}):
-        start_ind = 0
-        for i in np.arange(_ceil_div(people_data.shape[0], 4)):
-            if start_ind + 4 <= people_data.shape[0]:
-                end_ind = start_ind + 4
-            else:
-                end_ind = people_data.shape[0]
-            fig, axs = plt.subplots(2, 2, figsize=figure_size, dpi=175)
-            fig.tight_layout(h_pad=0.1, w_pad=0.1)
-            for ax in axs.ravel():
-                ax.axis("off")
-            for row, ax in zip(
-                people_data.iloc[start_ind:end_ind].iterrows(), axs.ravel()
-            ):
-                _make_card(
-                    row[1],
-                    ax,
-                    first_name_col,
-                    last_name_col,
-                    photo_path_col,
-                    path_to_default_photo,
-                    name_x_coord,
-                    name_y_coord,
-                    name_font_size,
-                    desc_padding,
-                    desc_font_size,
-                    photo_axes_bounds,
-                    stats=stats,
-                )
-            fig.savefig(os.path.join(path_to_output_dir, f"figure{i + 1}.png"))
+        for i, start in enumerate(range(0, len(people_data), _CARDS_PER_PAGE), start=1):
+            batch = people_data.iloc[start : start + _CARDS_PER_PAGE]
+            fig = _make_page_fig(
+                batch,
+                first_name_col,
+                last_name_col,
+                photo_path_col,
+                path_to_default_photo,
+                layout,
+                dpi=_SAVEFIG_DPI,
+                stats=stats,
+            )
+            fig.savefig(os.path.join(path_to_output_dir, f"figure{i}.png"))
             plt.close(fig)
-            start_ind += 4
 
 
 def _make_fig_preview(
@@ -572,13 +682,7 @@ def _make_fig_preview(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    figure_size: tuple[float, float],
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Show a preview (using :func:`plt.show`) of the first page of the PDF that would
@@ -618,37 +722,8 @@ def _make_fig_preview(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
-        individuals' descriptions.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of individuals' names on their
-        intro cards (which are Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of individuals' names on their intro cards
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of individuals' descriptions on their intro
-        cards. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the cards
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -663,29 +738,73 @@ def _make_fig_preview(
     plt.close("all")
 
     with mpl.rc_context({"mathtext.default": "bf"}):
-        end_ind = min(people_data.shape[0], 4)
-        # Here, dpi controls the resolution of figure preview in interactive environment
-        fig, axs = plt.subplots(2, 2, figsize=figure_size, dpi=300)
-        fig.tight_layout(h_pad=0.1, w_pad=0.1)
-        for ax in axs.ravel():
-            ax.axis("off")
-        for row, ax in zip(people_data.iloc[0:end_ind].iterrows(), axs.ravel()):
-            _make_card(
-                row[1],
-                ax,
-                first_name_col,
-                last_name_col,
-                photo_path_col,
-                path_to_default_photo,
-                name_x_coord,
-                name_y_coord,
-                name_font_size,
-                desc_padding,
-                desc_font_size,
-                photo_axes_bounds,
-                stats=stats,
-            )
+        batch = people_data.iloc[0:_CARDS_PER_PAGE]
+        # dpi controls the resolution of figure preview in interactive environment
+        fig = _make_page_fig(
+            batch,
+            first_name_col,
+            last_name_col,
+            photo_path_col,
+            path_to_default_photo,
+            layout,
+            dpi=_PREVIEW_DPI,
+            stats=stats,
+        )
         plt.show()  # Needs to be called explicitly to properly render Mathtext in bold
+        plt.close(fig)
+
+
+def _resolve_photo(
+    row: pd.Series,
+    photo_path_col: str,
+    path_to_default_photo: str,
+    stats: StatsDict,
+) -> tuple[Image.Image, str, str]:
+    """Determine which photo to display on a card and return it along with a status
+    string and message. Private function.
+
+    Tries the per-person photo path first. Falls back to ``path_to_default_photo`` if
+    the path is empty, the file does not exist, or the file cannot be read by PIL. In
+    fallback cases a warning entry is appended to ``stats``.
+
+    :param row: The row in ``people_data`` for the individual being rendered
+    :type row: pd.Series
+    :param photo_path_col: The name of the column housing paths to individuals' photos
+    :type photo_path_col: str
+    :param path_to_default_photo: The path to the fallback photo
+    :type path_to_default_photo: str
+    :param stats: Metadata dictionary; ``people_with_photo_warnings`` is mutated on
+        fallback
+    :type stats: StatsDict
+    :return: A tuple of (opened PIL Image, person_status, person_status_msg)
+    :rtype: tuple[Image.Image, str, str]
+    """
+    if row[photo_path_col] != "":
+        if not os.path.exists(row[photo_path_col]):
+            stats["people_with_photo_warnings"].append(row["Full Name"])
+            return (
+                Image.open(path_to_default_photo),
+                "WARNING",
+                "Photo path provided but photo not found; default used",
+            )
+        try:
+            return (
+                Image.open(row[photo_path_col]),
+                "SUCCESS",
+                "Photo path provided and photo read",
+            )
+        except OSError:
+            stats["people_with_photo_warnings"].append(row["Full Name"])
+            return (
+                Image.open(path_to_default_photo),
+                "WARNING",
+                f"Could not read photo at `{row[photo_path_col]}`; default used",
+            )
+    return (
+        Image.open(path_to_default_photo),
+        "SUCCESS",
+        "No photo path provided",
+    )
 
 
 def _make_card(
@@ -695,12 +814,7 @@ def _make_card(
     last_name_col: str,
     photo_path_col: str,
     path_to_default_photo: str,
-    name_x_coord: float,
-    name_y_coord: float,
-    name_font_size: float,
-    desc_padding: float,
-    desc_font_size: float,
-    photo_axes_bounds: tuple[float, float, float, float],
+    layout: _CardLayout,
     stats: StatsDict,
 ) -> None:
     """Create a single intro card by plotting an individual's name, photo, and
@@ -729,37 +843,8 @@ def _make_card(
         specifying this argument using a single-backlash separator, make sure to use a
         raw string.
     :type path_to_default_photo: str
-    :param figure_size: The size of the figure that Matplotlib will create when plotting
-        a batch of four intro cards on it. The first entry in this tuple is the width of
-        the figure and the second is the height (both in inches). Each figure will
-        ultimately become its own page in the PDF.
-    :type figure_size: tuple[float, float]
-    :param name_x_coord: The (Axes-relative) x-coordinate of the individual's name on
-        their intro card (which is a Matplotlib Axes). This will also be the
-        x-coordinate of the individual's description.
-    :type name_x_coord: float
-    :param name_y_coord: The (Axes-relative) y-coordinate of the individual's name on
-        their intro card (which is a Matplotlib Axes)
-    :type name_y_coord: float
-    :param name_font_size: The font size of the individual's name on their intro card
-    :type name_font_size: float
-    :param desc_padding: The amount of padding (in Axes-relative coordinates) below the
-        lower bound of the name's bounding box, after which to begin plotting the
-        individual's description
-    :type desc_padding: float
-    :param desc_font_size: The font size of the individual's description on their intro
-        card. If this font size would cause the lower bound of the description's
-        bounding box to come within 0.02 of the bottom of any individual's intro card
-        (or even exceed it and be cut off), then this font size will be iteratively
-        reduced by 5% on that specific intro card until this is no longer the case.
-    :type desc_font_size: float
-    :param photo_axes_bounds: The bounds of the photo Axes on individuals' intro cards
-        (the photo Axes is inset within the main intro card Axes). The bounds should be
-        given as (x0, y0, width, height), where x0 and y0 represent the lower-left
-        corner of the photo Axes. The photo will ultimately grow from the upper-left
-        corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
-        relative.
-    :type photo_axes_bounds: tuple[float, float, float, float]
+    :param layout: Layout and formatting parameters for the card
+    :type layout: _CardLayout
     :param stats: Metadata pertaining to the number of intro cards that were created,
         the number of people for whom cards needed to be generated, and the names of
         people whose photos could not be found or read
@@ -775,11 +860,11 @@ def _make_card(
     name_right_padding = 0.02  # Padding on right edge of figure for _WrapText
     # Plot name
     name_text = _WrapText(
-        name_x_coord,
-        name_y_coord,
-        f"{row['Full Name']}",
-        fontsize=name_font_size,
-        width=1 - name_x_coord - name_right_padding,
+        layout.name_x_coord,
+        layout.name_y_coord,
+        row["Full Name"],
+        fontsize=layout.name_font_size,
+        width=1 - layout.name_x_coord - name_right_padding,
         widthcoords=ax.transAxes,
         transform=ax.transAxes,
         fontweight="bold",
@@ -790,21 +875,22 @@ def _make_card(
 
     name_text_bbox = name_text.get_window_extent()  # In display coordinates
     name_text_bbox_ax_coords = name_text_bbox.transformed(ax.transAxes.inverted())
-    desc_y1_coord = name_text_bbox_ax_coords.y0 - desc_padding
+    desc_y1_coord = name_text_bbox_ax_coords.y0 - layout.desc_padding
 
     # Plot the description
     # If the provided font size would cause its bottom boundary to come within 0.02
     # of the bottom of the card or exceed the bottom of the card (and therefore be
     # cut off), iteratively reduce the font size by 5% until this is no longer the case.
+    current_font_size = layout.desc_font_size
     while True:
         desc_text = _WrapText(
-            name_x_coord,
+            layout.name_x_coord,
             desc_y1_coord,
             _get_description_string_from_row(
                 row, first_name_col, last_name_col, photo_path_col
             ),
-            fontsize=desc_font_size,
-            width=1 - name_x_coord - name_right_padding,
+            fontsize=current_font_size,
+            width=1 - layout.name_x_coord - name_right_padding,
             widthcoords=ax.transAxes,
             transform=ax.transAxes,
             va="top",
@@ -813,45 +899,26 @@ def _make_card(
         ax.add_artist(desc_text)
         desc_text_bbox = desc_text.get_window_extent()  # In display coordinates
         desc_text_bbox_ax_coords = desc_text_bbox.transformed(ax.transAxes.inverted())
-        if desc_text_bbox_ax_coords.y0 >= 0.02:
+        if desc_text_bbox_ax_coords.y0 >= _BOTTOM_MARGIN:
             break
         else:
             desc_text.remove()
-            desc_font_size = desc_font_size * 0.95
+            current_font_size = current_font_size * _FONT_SHRINK_FACTOR
 
-    if not row[photo_path_col] == "":
-        if not os.path.exists(row[photo_path_col]):
-            person_status = "WARNING"
-            person_status_msg = "Photo path provided but photo not found; default used"
-            stats["people_with_photo_warnings"].append(row["Full Name"])
-            img_to_open = path_to_default_photo
-        else:
-            try:
-                img = Image.open(row[photo_path_col])
-                img.close()
-                person_status = "SUCCESS"
-                person_status_msg = "Photo path provided and photo read"
-                img_to_open = row[photo_path_col]
-            except OSError:
-                person_status = "WARNING"
-                person_status_msg = (
-                    f"Could not read photo at `{row[photo_path_col]}`; default used"
-                )
-                stats["people_with_photo_warnings"].append(row["Full Name"])
-                img_to_open = path_to_default_photo
-    else:
-        person_status = "SUCCESS"
-        person_status_msg = "No photo path provided"
-        img_to_open = path_to_default_photo
+    img, person_status, person_status_msg = _resolve_photo(
+        row, photo_path_col, path_to_default_photo, stats
+    )
 
-    ax_inset = ax.inset_axes(photo_axes_bounds, anchor="NW")
-    ax_inset.imshow(Image.open(img_to_open))
+    ax_inset = ax.inset_axes(layout.photo_axes_bounds, anchor="NW")
+    ax_inset.imshow(img)
+    img.close()
     ax_inset.tick_params(axis="both", which="both", length=0)
-    ax_inset.set_xticklabels([])
-    ax_inset.set_yticklabels([])
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_visible(True)
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_color("black")
-    ax_inset.spines[["top", "bottom", "left", "right"]].set_linewidth(0.1)
+    ax_inset.set_xticks([])
+    ax_inset.set_yticks([])
+    for spine in ax_inset.spines.values():
+        spine.set_visible(True)
+        spine.set_color("black")
+        spine.set_linewidth(0.1)
 
     current_progress_for_log_message = (
         f"[{stats['number_of_cards_created'] + 1}/{stats['number_of_cards_to_create']}]"
@@ -900,7 +967,7 @@ def _get_description_string_from_row(
     desc_string_components = [
         f"${column_name}:$ {attribute_value}"
         for column_name, attribute_value in row_attributes_ex_names_and_photo.items()
-        if not attribute_value == ""
+        if attribute_value != ""
     ]
 
     return "\n".join(desc_string_components)
@@ -999,20 +1066,6 @@ class _WrapText(Text):
         :rtype: float
         """
         return self.width
-
-
-def _ceil_div(dividend: float, divisor: float) -> float:
-    """Perform ceiling division using upside-down floor division, which avoids
-    introducing floating-point error. Private function.
-
-    :param dividend: The dividend of the ceiling division operation
-    :type dividend: float
-    :param divisor: The divisor of the ceiling division operation
-    :type divisor: float
-    :return: The result of the ceiling division
-    :rtype: float
-    """
-    return -(dividend // -divisor)
 
 
 def _format_data_and_derive_full_names(
