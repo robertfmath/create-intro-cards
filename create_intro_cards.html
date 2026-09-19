@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>create-intro-cards &#8212; create-intro-cards  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/css/theme-overrides.css?v=078ed4fb" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to the documentation for create-intro-cards!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-create_intro_cards">
+<span id="create-intro-cards"></span><h1>create-intro-cards<a class="headerlink" href="#module-create_intro_cards" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="create_intro_cards.StatsDict">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">StatsDict</span></span><a class="headerlink" href="#create_intro_cards.StatsDict" title="Link to this definition">¶</a></dt>
+<dd><p>Metadata about a given run of the intro card creation process.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="create_intro_cards.StatsDict.number_of_cards_created">
+<span class="sig-name descname"><span class="pre">number_of_cards_created</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#create_intro_cards.StatsDict.number_of_cards_created" title="Link to this definition">¶</a></dt>
+<dd><p>The total number of intro cards that were created.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="create_intro_cards.StatsDict.number_of_cards_to_create">
+<span class="sig-name descname"><span class="pre">number_of_cards_to_create</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#create_intro_cards.StatsDict.number_of_cards_to_create" title="Link to this definition">¶</a></dt>
+<dd><p>The number of people for whom cards needed to be generated.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="create_intro_cards.StatsDict.people_with_photo_warnings">
+<span class="sig-name descname"><span class="pre">people_with_photo_warnings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#create_intro_cards.StatsDict.people_with_photo_warnings" title="Link to this definition">¶</a></dt>
+<dd><p>The names of people whose photos could not be found or read.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="create_intro_cards._CardLayout">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_CardLayout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">13)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_x_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_y_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_axes_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#create_intro_cards._CardLayout" title="Link to this definition">¶</a></dt>
+<dd><p>Layout and formatting parameters for intro cards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figure_size</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Width and height of each page figure in inches, defaults to (23,
+13)</p></li>
+<li><p><strong>name_x_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – Axes-relative x-coordinate of the name (and description) on
+each card, defaults to 0.35</p></li>
+<li><p><strong>name_y_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – Axes-relative y-coordinate of the name on each card, defaults
+to 0.95</p></li>
+<li><p><strong>name_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Font size of the name on each card, defaults to 50</p></li>
+<li><p><strong>desc_padding</strong> (<em>float</em><em>, </em><em>optional</em>) – Axes-relative padding between the bottom of the name bounding
+box and the top of the description, defaults to 0.05</p></li>
+<li><p><strong>desc_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Font size of the description on each card. Iteratively
+reduced by 5% if the description would overflow the bottom of the card, defaults
+to 16</p></li>
+<li><p><strong>photo_axes_bounds</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Bounds of the inset photo Axes as (x0, y0, width, height)
+in Axes-relative coordinates, defaults to (0.02, 0.02, 0.3, 0.93)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="create_intro_cards._CardLayout.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">13)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_x_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_y_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_axes_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._CardLayout.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards.make_pdf">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">make_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">people_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'./intro_cards_output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(23,</span> <span class="pre">13)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_x_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_y_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_axes_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0.02,</span> <span class="pre">0.02,</span> <span class="pre">0.3,</span> <span class="pre">0.93)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></span><a class="headerlink" href="#create_intro_cards.make_pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a PDF containing intro cards for all individuals in <code class="docutils literal notranslate"><span class="pre">people_data</span></code>.</p>
+<p>This is entry point of the package. It generates a PDF, where each page of the PDF
+is a single Matplotlib figure, which is itself composed of four individuals’ intro
+cards. Each intro card contains an individual’s name, a photo (either provided or
+default), and a description that displays their “column name: attribute value”
+pairings for each custom column in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> (i.e., columns not related to
+name and photo path).</p>
+<p>On each intro card, “column name: attribute value” pairings are separated by a new
+line, and each “column name” is rendered in bold. Text on any given line is wrapped
+such that it approaches—but does not touch—the right border of the card. If an
+individual’s “attribute value” is left blank, that particular “column name:
+attribute value” pairing will be omitted from their card. Note that if the name of a
+custom column contains <code class="docutils literal notranslate"><span class="pre">~</span></code>, <code class="docutils literal notranslate"><span class="pre">^</span></code>, or <code class="docutils literal notranslate"><span class="pre">\</span></code>, that character will be removed from
+the column name on the intro card.</p>
+<p>This function also provides parameters to tweak the formatting and layout of all
+individuals’ intro cards, such as <code class="docutils literal notranslate"><span class="pre">name_x_coord</span></code>, <code class="docutils literal notranslate"><span class="pre">desc_padding</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">photo_axes_bounds</span></code>. Using <a class="reference internal" href="#create_intro_cards.make_pdf_preview" title="create_intro_cards.make_pdf_preview"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf_preview()</span></code></a> (Jupyter environment required)
+allows for quick feedback on how these parameters affect the cards.</p>
+<p>The output PDF is saved down in <code class="docutils literal notranslate"><span class="pre">path_to_output_dir</span></code>. Also in this directory are
+the constituent pages of the PDF (PNG images of the Matplotlib figures, as rendered
+using the Agg backend) and a log file that denotes the names and photo availability
+statuses of all the individuals who had an intro card created. Depending on the
+number of individuals, the file size of the PDF might be quite large; to reduce it
+(at the expense of resolution), scale down each number in <code class="docutils literal notranslate"><span class="pre">figure_size</span></code>,
+<code class="docutils literal notranslate"><span class="pre">name_font_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">desc_font_size</span></code> by a common factor.</p>
+<p>The function returns a dictionary with metadata pertaining to the number of intro
+cards that were created, the number of people for whom cards needed to be generated,
+and the names of people whose photos could not be found or read.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>people_data</strong> (<em>pd.DataFrame</em>) – The pandas DataFrame containing all the data from which to make
+intro cards. Rows represent individuals, while columns represent attributes of
+those individuals. The choice of attributes is completely up to the user (e.g.,
+“Hometown”, “Fun Fact”), but it is required that there be columns for first
+name, last name, and paths to individuals’ photos (which will ultimately be
+displayed on their respective intro cards). The name of each column—except the
+ones for first name, last name, and photo paths—will ultimately end up being
+listed on individuals’ intro cards in bold. The order of these columns dictates
+the order in which “column name: attribute value” pairings are displayed on the
+cards.</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos. The photos must be of a type that Pillow
+supports (e.g., PNG, JPG). Paths can be relative or absolute.</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. This default photo will also be used
+if there is indeed a photo path specified but the photo cannot be found at that
+location. The photo must be of a type that Pillow supports (e.g., PNG, JPG). If
+specifying this argument using a single-backlash separator, make sure to use a
+raw string.</p></li>
+<li><p><strong>path_to_output_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – The path to the output directory to use. The output
+directory will store the final PDF, its constituent pages/Matplob figures, and
+the log file. If it does not exist, it will be created at runtime. If specifying
+this argument using a single-backlash separator, make sure to use a raw string.,
+defaults to ‘intro_cards_output’</p></li>
+<li><p><strong>figure_size</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The size of the figure that Matplotlib will create when plotting
+a batch of four intro cards on it. The first entry in this tuple is the width of
+the figure and the second is the height (both in inches). Each figure will
+ultimately become its own page in the PDF., defaults to (23, 13)</p></li>
+<li><p><strong>name_x_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – The (Axes-relative) x-coordinate of individuals’ names on their
+intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
+individuals’ descriptions., defaults to 0.35</p></li>
+<li><p><strong>name_y_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – The (Axes-relative) y-coordinate of individuals’ names on their
+intro cards (which are Matplotlib Axes), defaults to 0.95</p></li>
+<li><p><strong>name_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – The font size of individuals’ names on their intro cards,
+defaults to 50</p></li>
+<li><p><strong>desc_padding</strong> (<em>float</em><em>, </em><em>optional</em>) – The amount of padding (in Axes-relative coordinates) below the
+lower bound of the name’s bounding box, after which to begin plotting the
+individual’s description, defaults to 0.05</p></li>
+<li><p><strong>desc_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – The font size of individuals’ descriptions on their intro
+cards. If this font size would cause the lower bound of the description’s
+bounding box to come within 0.02 of the bottom of any individual’s intro card
+(or even exceed it and be cut off), then this font size will be iteratively
+reduced by 5% on that specific intro card until this is no longer the case.,
+defaults to 16</p></li>
+<li><p><strong>photo_axes_bounds</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The bounds of the photo Axes on individuals’ intro cards
+(the photo Axes is inset within the main intro card Axes). The bounds should be
+given as (x0, y0, width, height), where x0 and y0 represent the lower-left
+corner of the photo Axes. The photo will ultimately grow from the upper-left
+corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
+relative., defaults to (0.02, 0.02, 0.3, 0.93)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>OSError</strong> – If the default photo does not exist at the specified path, or if
+the default photo cannot be read by PIL, or if the specified output directory
+does not exist and then cannot be created</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">first_name_col</span></code>, <code class="docutils literal notranslate"><span class="pre">last_name_col</span></code>, or <code class="docutils literal notranslate"><span class="pre">photo_path_col</span></code>
+cannot be found in <code class="docutils literal notranslate"><span class="pre">people_data</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata pertaining to the number of intro cards that were created, the
+number of people for whom cards needed to be generated, and the names of people
+whose photos could not be found or read</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict">StatsDict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards.make_pdf_preview">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">make_pdf_preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">people_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(23,</span> <span class="pre">13)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_x_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_y_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_axes_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0.02,</span> <span class="pre">0.02,</span> <span class="pre">0.3,</span> <span class="pre">0.93)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></span><a class="headerlink" href="#create_intro_cards.make_pdf_preview" title="Link to this definition">¶</a></dt>
+<dd><p>Show a preview in a Jupyter environment of the first page of the PDF that would
+be created if <a class="reference internal" href="#create_intro_cards.make_pdf" title="create_intro_cards.make_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf()</span></code></a> were run, and print log output to the console.</p>
+<p>This function is helpful to gauge how the output will look in response to tweaking
+certain parameters (e.g., <code class="docutils literal notranslate"><span class="pre">name_font_size</span></code>) without having to actually iterate
+through the entirety of <code class="docutils literal notranslate"><span class="pre">people_data</span></code> and compile the PDF. Its parameters,
+defaults, and return type are identical to those of <a class="reference internal" href="#create_intro_cards.make_pdf" title="create_intro_cards.make_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf()</span></code></a>, except for its
+omission of <code class="docutils literal notranslate"><span class="pre">path_to_output_dir</span></code>. It serves primarily as a wrapper for
+<a class="reference internal" href="#create_intro_cards._make_fig_preview" title="create_intro_cards._make_fig_preview"><code class="xref py py-func docutils literal notranslate"><span class="pre">_make_fig_preview()</span></code></a> to allow for more consistent naming in the public API.</p>
+<p>Because this function uses Matplotlib’s inline backend, it is required to be run in
+a Jupyter environment. The figures displayed by this backend ultimately match those
+that are rendered by the Agg backend that is implicitly used in each of
+<a class="reference internal" href="#create_intro_cards.make_pdf" title="create_intro_cards.make_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf()</span></code></a>’s <code class="xref py py-func docutils literal notranslate"><span class="pre">fig.savefig()</span></code> calls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>people_data</strong> (<em>pd.DataFrame</em>) – The pandas DataFrame containing all the data from which to make
+intro cards. Rows represent individuals, while columns represent attributes of
+those individuals. The choice of attributes is completely up to the user (e.g.,
+“Hometown”, “Fun Fact”), but it is required that there be columns for first
+name, last name, and paths to individuals’ photos (which will ultimately be
+displayed on their respective intro cards). The name of each column—except the
+ones for first name, last name, and photo paths—will ultimately end up being
+listed on individuals’ intro cards in bold. The order of these columns dictates
+the order in which “column name: attribute value” pairings are displayed on the
+cards.</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos. The photos must be of a type that Pillow
+supports (e.g., PNG, JPG). Paths can be relative or absolute.</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. This default photo will also be used
+if there is indeed a photo path specified but the photo cannot be found at that
+location. The photo must be of a type that Pillow supports (e.g., PNG, JPG). If
+specifying this argument using a single-backlash separator, make sure to use a
+raw string.</p></li>
+<li><p><strong>figure_size</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The size of the figure that Matplotlib will create when plotting
+a batch of four intro cards on it. The first entry in this tuple is the width of
+the figure and the second is the height (both in inches). Each figure will
+ultimately become its own page in the PDF., defaults to (23, 13)</p></li>
+<li><p><strong>name_x_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – The (Axes-relative) x-coordinate of individuals’ names on their
+intro cards (which are Matplotlib Axes). This will also be the x-coordinate of
+individuals’ descriptions., defaults to 0.35</p></li>
+<li><p><strong>name_y_coord</strong> (<em>float</em><em>, </em><em>optional</em>) – The (Axes-relative) y-coordinate of individuals’ names on their
+intro cards (which are Matplotlib Axes), defaults to 0.95</p></li>
+<li><p><strong>name_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – The font size of individuals’ names on their intro cards,
+defaults to 50</p></li>
+<li><p><strong>desc_padding</strong> (<em>float</em><em>, </em><em>optional</em>) – The amount of padding (in Axes-relative coordinates) below the
+lower bound of the name’s bounding box, after which to begin plotting the
+individual’s description, defaults to 0.05</p></li>
+<li><p><strong>desc_font_size</strong> (<em>float</em><em>, </em><em>optional</em>) – The font size of individuals’ descriptions on their intro
+cards. If this font size would cause the lower bound of the description’s
+bounding box to come within 0.02 of the bottom of any individual’s intro card
+(or even exceed it and be cut off), then this font size will be iteratively
+reduced by 5% on that specific intro card until this is no longer the case.,
+defaults to 16</p></li>
+<li><p><strong>photo_axes_bounds</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The bounds of the photo Axes on individuals’ intro cards
+(the photo Axes is inset within the main intro card Axes). The bounds should be
+given as (x0, y0, width, height), where x0 and y0 represent the lower-left
+corner of the photo Axes. The photo will ultimately grow from the upper-left
+corner of this bounding box with a fixed aspect ratio. All coordinates are Axes-
+relative., defaults to (0.02, 0.02, 0.3, 0.93)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>OSError</strong> – If the default photo does not exist at the specified path, or if
+the default photo cannot be read by PIL</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">first_name_col</span></code>, <code class="docutils literal notranslate"><span class="pre">last_name_col</span></code>, or <code class="docutils literal notranslate"><span class="pre">photo_path_col</span></code>
+cannot be found in <code class="docutils literal notranslate"><span class="pre">people_data</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata pertaining to the number of intro cards that were created, the
+number of people for whom cards needed to be generated, and the names of people
+whose photos could not be found or read</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict">StatsDict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._log_to_stream_and_file">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_log_to_stream_and_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#create_intro_cards._log_to_stream_and_file" title="Link to this definition">¶</a></dt>
+<dd><p>Context manager that adds a stream handler and a file handler to the module
+logger for the duration of the <code class="docutils literal notranslate"><span class="pre">with</span></code> block, then removes them on exit. Private
+function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path to the log file to write</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator[None, None, None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._log_to_stream">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_log_to_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#create_intro_cards._log_to_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Context manager that adds a stream handler to the module logger for the duration
+of the <code class="docutils literal notranslate"><span class="pre">with</span></code> block, then removes it on exit. Private function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generator[None, None, None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._validate_inputs">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_validate_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">people_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._validate_inputs" title="Link to this definition">¶</a></dt>
+<dd><p>Validate inputs shared by <a class="reference internal" href="#create_intro_cards.make_pdf" title="create_intro_cards.make_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf()</span></code></a> and <a class="reference internal" href="#create_intro_cards.make_pdf_preview" title="create_intro_cards.make_pdf_preview"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf_preview()</span></code></a>. Private
+function.</p>
+<p>Checks that the default photo exists and is readable by PIL, and that all required
+columns are present in <code class="docutils literal notranslate"><span class="pre">people_data</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>people_data</strong> (<em>pd.DataFrame</em>) – The pandas DataFrame containing all the data from which to make
+intro cards</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the default photo to validate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>OSError</strong> – If the default photo does not exist at the specified path or cannot
+be read by PIL</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">first_name_col</span></code>, <code class="docutils literal notranslate"><span class="pre">last_name_col</span></code>, or <code class="docutils literal notranslate"><span class="pre">photo_path_col</span></code>
+cannot be found in <code class="docutils literal notranslate"><span class="pre">people_data</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>NoneType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._make_page_fig">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_make_page_fig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><span class="pre">_CardLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="headerlink" href="#create_intro_cards._make_page_fig" title="Link to this definition">¶</a></dt>
+<dd><p>Create and populate a single page figure with up to <code class="docutils literal notranslate"><span class="pre">_CARDS_PER_PAGE</span></code> intro
+cards. Private function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> (<em>pd.DataFrame</em>) – A slice of the processed <code class="docutils literal notranslate"><span class="pre">people_data</span></code> DataFrame containing up to
+<code class="docutils literal notranslate"><span class="pre">_CARDS_PER_PAGE</span></code> rows to render on this page</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed or the photo cannot be read</p></li>
+<li><p><strong>layout</strong> (<a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><em>_CardLayout</em></a>) – Layout and formatting parameters for the cards</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Resolution in dots per inch for the figure</p></li>
+<li><p><strong>stats</strong> (<a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><em>StatsDict</em></a>) – Metadata pertaining to the number of intro cards that were created,
+the number of people for whom cards needed to be generated, and the names of
+people whose photos could not be found or read</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The populated Matplotlib figure for this page</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._make_figs">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_make_figs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">people_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><span class="pre">_CardLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._make_figs" title="Link to this definition">¶</a></dt>
+<dd><p>Iteratively grab batches of four rows (individuals) from <code class="docutils literal notranslate"><span class="pre">people_data</span></code>, and for
+each batch save a Matplotlib figure that shows those four individuals’ intro cards.
+Private function.</p>
+<p>All figures will be saved as PNG files in <code class="docutils literal notranslate"><span class="pre">path_to_output_dir</span></code>. If the number of
+rows in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> is not divisible by 4, the last figure will show only as
+many individuals are needed to account for every individual in the DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>people_data</strong> (<em>pd.DataFrame</em>) – The pandas DataFrame containing all the data from which to make
+intro cards. Rows represent individuals, while columns represent attributes of
+those individuals. The choice of attributes is completely up to the user (e.g.,
+“Hometown”, “Fun Fact”), but it is required that there be columns for first
+name, last name, and paths to individuals’ photos (which will ultimately be
+displayed on their respective intro cards). The name of each column—except the
+ones for first name, last name, and photo paths—will ultimately end up being
+listed on individuals’ intro cards in bold. The order of these columns dictates
+the order in which “column name: attribute value” pairings are displayed on the
+cards.</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos. The photos must be of a type that Pillow
+supports (e.g., PNG, JPG). Paths can be relative or absolute.</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. This default photo will also be used
+if there is indeed a photo path specified but the photo cannot be found at that
+location. The photo must be of a type that Pillow supports (e.g., PNG, JPG). If
+specifying this argument using a single-backlash separator, make sure to use a
+raw string.</p></li>
+<li><p><strong>path_to_output_dir</strong> (<em>str</em>) – The path to the output directory to use. The output
+directory will store the final PDF, its constituent pages/Matplob figures, and
+the log file. If it does not exist, it will be created at runtime. If specifying
+this argument using a single-backlash separator, make sure to use a raw string.</p></li>
+<li><p><strong>layout</strong> (<a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><em>_CardLayout</em></a>) – Layout and formatting parameters for the cards</p></li>
+<li><p><strong>stats</strong> (<a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><em>StatsDict</em></a>) – Metadata pertaining to the number of intro cards that were created,
+the number of people for whom cards needed to be generated, and the names of
+people whose photos could not be found or read</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NoneType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._make_fig_preview">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_make_fig_preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">people_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><span class="pre">_CardLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._make_fig_preview" title="Link to this definition">¶</a></dt>
+<dd><p>Show a preview (using <code class="xref py py-func docutils literal notranslate"><span class="pre">plt.show()</span></code>) of the first page of the PDF that would
+be created if <a class="reference internal" href="#create_intro_cards.make_pdf" title="create_intro_cards.make_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pdf()</span></code></a> were run. Private function.</p>
+<p>This function is called internally by <code class="docutils literal notranslate"><span class="pre">make_pdf_preview</span></code> to gauge how the output
+will look in response to tweaking certain parameters (e.g., <code class="docutils literal notranslate"><span class="pre">name_font_size</span></code>),
+without having to iterate through the entirety of <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. Its parameters
+are identical to those of <a class="reference internal" href="#create_intro_cards._make_figs" title="create_intro_cards._make_figs"><code class="xref py py-func docutils literal notranslate"><span class="pre">_make_figs()</span></code></a>, except for its omission of
+<code class="docutils literal notranslate"><span class="pre">path_to_output_dir</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>people_data</strong> (<em>pd.DataFrame</em>) – The pandas DataFrame containing all the data from which to make
+intro cards. Rows represent individuals, while columns represent attributes of
+those individuals. The choice of attributes is completely up to the user (e.g.,
+“Hometown”, “Fun Fact”), but it is required that there be columns for first
+name, last name, and paths to individuals’ photos (which will ultimately be
+displayed on their respective intro cards). The name of each column—except the
+ones for first name, last name, and photo paths—will ultimately end up being
+listed on individuals’ intro cards in bold. The order of these columns dictates
+the order in which “column name: attribute value” pairings are displayed on the
+cards.</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos. The photos must be of a type that Pillow
+supports (e.g., PNG, JPG). Paths can be relative or absolute.</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. This default photo will also be used
+if there is indeed a photo path specified but the photo cannot be found at that
+location. The photo must be of a type that Pillow supports (e.g., PNG, JPG). If
+specifying this argument using a single-backlash separator, make sure to use a
+raw string.</p></li>
+<li><p><strong>layout</strong> (<a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><em>_CardLayout</em></a>) – Layout and formatting parameters for the cards</p></li>
+<li><p><strong>stats</strong> (<a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><em>StatsDict</em></a>) – Metadata pertaining to the number of intro cards that were created,
+the number of people for whom cards needed to be generated, and the names of
+people whose photos could not be found or read</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NoneType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._resolve_photo">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_resolve_photo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#create_intro_cards._resolve_photo" title="Link to this definition">¶</a></dt>
+<dd><p>Determine which photo to display on a card and return it along with a status
+string and message. Private function.</p>
+<p>Tries the per-person photo path first. Falls back to <code class="docutils literal notranslate"><span class="pre">path_to_default_photo</span></code> if
+the path is empty, the file does not exist, or the file cannot be read by PIL. In
+fallback cases a warning entry is appended to <code class="docutils literal notranslate"><span class="pre">stats</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>pd.Series</em>) – The row in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> for the individual being rendered</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column housing paths to individuals’ photos</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the fallback photo</p></li>
+<li><p><strong>stats</strong> (<a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><em>StatsDict</em></a>) – Metadata dictionary; <code class="docutils literal notranslate"><span class="pre">people_with_photo_warnings</span></code> is mutated on
+fallback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of (opened PIL Image, person_status, person_status_msg)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[Image.Image, str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._make_card">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_make_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_default_photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><span class="pre">_CardLayout</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><span class="pre">StatsDict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._make_card" title="Link to this definition">¶</a></dt>
+<dd><p>Create a single intro card by plotting an individual’s name, photo, and
+description on a Matplotlib Axes. Private function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>pd.Series</em>) – The row in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> from which to create the intro card. Each row
+represents an individual.</p></li>
+<li><p><strong>ax</strong> (<em>mpl.axes.Axes</em>) – The Matplotlib Axes object on which to plot the individual’s name, photo,
+and description string</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses paths to individuals’ photos. The photos must be of a type that Pillow
+supports (e.g., PNG, JPG). Paths can be relative or absolute.</p></li>
+<li><p><strong>path_to_default_photo</strong> (<em>str</em>) – The path to the photo to use if an individual does not
+have a photo path listed <code class="docutils literal notranslate"><span class="pre">people_data</span></code>. This default photo will also be used
+if there is indeed a photo path specified but the photo cannot be found at that
+location. The photo must be of a type that Pillow supports (e.g., PNG, JPG). If
+specifying this argument using a single-backlash separator, make sure to use a
+raw string.</p></li>
+<li><p><strong>layout</strong> (<a class="reference internal" href="#create_intro_cards._CardLayout" title="create_intro_cards._CardLayout"><em>_CardLayout</em></a>) – Layout and formatting parameters for the card</p></li>
+<li><p><strong>stats</strong> (<a class="reference internal" href="#create_intro_cards.StatsDict" title="create_intro_cards.StatsDict"><em>StatsDict</em></a>) – Metadata pertaining to the number of intro cards that were created,
+the number of people for whom cards needed to be generated, and the names of
+people whose photos could not be found or read</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NoneType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._get_description_string_from_row">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_get_description_string_from_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#create_intro_cards._get_description_string_from_row" title="Link to this definition">¶</a></dt>
+<dd><p>Return a string that, for a given row/individual, lists all their “column name:
+attribute value” pairings for each column in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> (except columns related
+to names or photo path). Private function.</p>
+<p>Each “column name: attribute value” pairing is separated by a new line, and each
+“column name” is bolded (by wrapping it in appropriate Mathtext characters). Text on
+any given line is wrapped, such that it approaches—but does not touch—the right
+border of the card. If an individual’s “attribute value” is left blank, then that
+particular “column name: attribute value” pairing will be omitted from the
+description string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>pd.Series</em>) – The row in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> to describe. Each row represents an
+individual.</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that houses
+last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – The name of the column (Series) in <code class="docutils literal notranslate"><span class="pre">people_data</span></code> that
+houses photo paths. Paths can be relative or absolute.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A formatted description string listing all the appropriate “column name:
+attribute value” pairings of <cite>row</cite></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="create_intro_cards._WrapText">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_WrapText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widthcoords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#create_intro_cards._WrapText" title="Link to this definition">¶</a></dt>
+<dd><p>Extend the functionality of <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code> by allowing for text to
+be wrapped when a line reaches a certain width (in effect forming a text box).
+Private class.</p>
+<p>With this class, the user can specify the maximum width—in units of
+<code class="docutils literal notranslate"><span class="pre">widthcoords</span></code>—of a Matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code> instance. If the addition of any
+character or word to a line would bring the length of that line beyond the maximum
+width, a new line will be inserted and that character or word will start the new
+line. The class does this by inhering from <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code> and
+overriding its <a class="reference internal" href="#create_intro_cards._WrapText._get_wrap_line_width" title="create_intro_cards._WrapText._get_wrap_line_width"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_get_wrap_line_width()</span></code></a> method, ultimately creating a new
+<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code> artist. Besides <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">widthcoords</span></code>, all
+arguments passed when instantiating this class (including <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>) are passed to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code>.</p>
+<p>(This implementation comes from a Github Gist posted by user “dneuman”.
+<a class="reference external" href="https://gist.github.com/dneuman/90af7551c258733954e3b1d1c17698fe">Link to Gist</a>.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em><em>, </em><em>optional</em>) – The x-coordinate of the text. All subsequent code in this module converts
+this number to an Axes-relative coordinate (instead of the default transData) by
+passing <code class="docutils literal notranslate"><span class="pre">transform=ax.transAxes</span></code> to the constructor., defaults to 0</p></li>
+<li><p><strong>y</strong> (<em>float</em><em>, </em><em>optional</em>) – The y-coordinate of the text. All subsequent code in this module converts
+this number to an Axes-relative coordinate (instead of the default transData) by
+passing <code class="docutils literal notranslate"><span class="pre">transform=ax.transAxes</span></code> to the constructor., defaults to 0</p></li>
+<li><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – The text string to display, defaults to “”</p></li>
+<li><p><strong>width</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum allowable width of the text to be displayed. Beyond this
+maximum width, the text is wrapped and a new line is started., defaults to 0</p></li>
+<li><p><strong>widthcoords</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpl.transforms.Transform</span></code> or None, optional) – The coordinate system of <code class="docutils literal notranslate"><span class="pre">width</span></code>, defaults to None (which is
+interpreted downstream in units of screen pixels)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="create_intro_cards._WrapText.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widthcoords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#create_intro_cards._WrapText.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize an instance of <a class="reference internal" href="#create_intro_cards._WrapText" title="create_intro_cards._WrapText"><code class="xref py py-class docutils literal notranslate"><span class="pre">_WrapText</span></code></a> at coordinates <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> with
+string <code class="docutils literal notranslate"><span class="pre">text</span></code>, with a maximum width of <code class="docutils literal notranslate"><span class="pre">width</span></code> expressed in units of
+<code class="docutils literal notranslate"><span class="pre">widthcoords</span></code>.</p>
+<p>Besides <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">widthcoords</span></code>, all arguments (including <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>) of
+this class are passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em><em>, </em><em>optional</em>) – The x-coordinate of the text. All subsequent code in this module
+converts this number to an Axes-relative coordinate (instead of the default
+transData) by passing <code class="docutils literal notranslate"><span class="pre">transform=ax.transAxes</span></code> to the constructor.,
+defaults to 0</p></li>
+<li><p><strong>y</strong> (<em>float</em><em>, </em><em>optional</em>) – The y-coordinate of the text. All subsequent code in this module
+converts this number to an Axes-relative coordinate (instead of the default
+transData) by passing <code class="docutils literal notranslate"><span class="pre">transform=ax.transAxes</span></code> to the constructor.,
+defaults to 0</p></li>
+<li><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – The text string to display, defaults to “”</p></li>
+<li><p><strong>width</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum allowable width of the text to be displayed. Beyond
+this maximum width, the text is wrapped and a new line is started., defaults
+to 0</p></li>
+<li><p><strong>widthcoords</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.transforms.Transform</span></code> or None, optional) – The coordinate system of <code class="docutils literal notranslate"><span class="pre">width</span></code>, defaults to None (which
+is interpreted downstream in units of screen pixels)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NoneType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="create_intro_cards._WrapText._get_wrap_line_width">
+<span class="sig-name descname"><span class="pre">_get_wrap_line_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#create_intro_cards._WrapText._get_wrap_line_width" title="Link to this definition">¶</a></dt>
+<dd><p>Return the maximum allowable width of the <a class="reference internal" href="#create_intro_cards._WrapText" title="create_intro_cards._WrapText"><code class="xref py py-class docutils literal notranslate"><span class="pre">_WrapText</span></code></a> instance.
+Private method.</p>
+<p>This method overrides the one implemented by <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.text.Text</span></code>,
+which is what allows the text to be wrapped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The maximum allowable width of the <a class="reference internal" href="#create_intro_cards._WrapText" title="create_intro_cards._WrapText"><code class="xref py py-class docutils literal notranslate"><span class="pre">_WrapText</span></code></a> instance, beyond
+which the text is wrapped.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="create_intro_cards._format_data_and_derive_full_names">
+<span class="sig-prename descclassname"><span class="pre">create_intro_cards.</span></span><span class="sig-name descname"><span class="pre">_format_data_and_derive_full_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photo_path_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#create_intro_cards._format_data_and_derive_full_names" title="Link to this definition">¶</a></dt>
+<dd><p>Format DataFrame for Mathtext compatibility and create Full Name column. Private
+function.</p>
+<p>This function replaces null values with empty strings, converts all values to
+strings, and trims whitespace. It also creates a “Full Name” column by combining the
+first and last name columns. Custom columns are formatted for Mathtext compatibility
+by removing forbidden characters (<code class="docutils literal notranslate"><span class="pre">~</span></code>, <code class="docutils literal notranslate"><span class="pre">^</span></code>, <code class="docutils literal notranslate"><span class="pre">\</span></code>) from column names, escaping
+special Mathtext characters (space, <code class="docutils literal notranslate"><span class="pre">#</span></code>, <code class="docutils literal notranslate"><span class="pre">$</span></code>, <code class="docutils literal notranslate"><span class="pre">%</span></code>, <code class="docutils literal notranslate"><span class="pre">_</span></code>, <code class="docutils literal notranslate"><span class="pre">{</span></code>, <code class="docutils literal notranslate"><span class="pre">}</span></code>) in
+column names, and escaping dollar signs (<code class="docutils literal notranslate"><span class="pre">$</span></code>) in column values. Name-related and
+photo path columns retain their original column names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame to process, containing individual records with their attributes</p></li>
+<li><p><strong>first_name_col</strong> (<em>str</em>) – Name of the column containing first names</p></li>
+<li><p><strong>last_name_col</strong> (<em>str</em>) – Name of the column containing last names</p></li>
+<li><p><strong>photo_path_col</strong> (<em>str</em>) – Name of the column containing photo file paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Processed DataFrame with Mathtext-compatible formatting and Full Name
+column</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">create-intro-cards</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">create-intro-cards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards.StatsDict"><code class="docutils literal notranslate"><span class="pre">StatsDict</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._CardLayout"><code class="docutils literal notranslate"><span class="pre">_CardLayout</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards.make_pdf"><code class="docutils literal notranslate"><span class="pre">make_pdf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards.make_pdf_preview"><code class="docutils literal notranslate"><span class="pre">make_pdf_preview()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._log_to_stream_and_file"><code class="docutils literal notranslate"><span class="pre">_log_to_stream_and_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._log_to_stream"><code class="docutils literal notranslate"><span class="pre">_log_to_stream()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._validate_inputs"><code class="docutils literal notranslate"><span class="pre">_validate_inputs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._make_page_fig"><code class="docutils literal notranslate"><span class="pre">_make_page_fig()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._make_figs"><code class="docutils literal notranslate"><span class="pre">_make_figs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._make_fig_preview"><code class="docutils literal notranslate"><span class="pre">_make_fig_preview()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._resolve_photo"><code class="docutils literal notranslate"><span class="pre">_resolve_photo()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._make_card"><code class="docutils literal notranslate"><span class="pre">_make_card()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._get_description_string_from_row"><code class="docutils literal notranslate"><span class="pre">_get_description_string_from_row()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._WrapText"><code class="docutils literal notranslate"><span class="pre">_WrapText</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create_intro_cards._format_data_and_derive_full_names"><code class="docutils literal notranslate"><span class="pre">_format_data_and_derive_full_names()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to the documentation for create-intro-cards!</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Bobby Math.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/create_intro_cards.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

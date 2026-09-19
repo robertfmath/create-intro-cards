@@ -1,0 +1,35 @@
+div.sphinxsidebar {
+    width: 350px;
+    margin-left: -120%;
+}
+
+div.sphinxsidebarwrapper {
+    padding-left: 0;
+}
+
+@media screen and (max-width: 1310px) {
+    div.sphinxsidebar {
+        display: block;
+        float: none;
+        width: unset;
+        margin-left: 200px;
+        padding: 10px 20px;
+        color: #3E4349;
+        background: #FFF
+    }
+}
+
+@media screen and (max-width: 940px) {
+    div.sphinxsidebar {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    div.sphinxsidebar a,
+    div.sphinxsidebar h3, 
+    div.sphinxsidebar h4, 
+    div.sphinxsidebar p, 
+    div.sphinxsidebar h3 a {
+        color: #3E4349;
+    }
+}
