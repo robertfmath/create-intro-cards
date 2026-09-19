@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from typing import Generator, TypedDict
 
 import matplotlib as mpl
-from matplotlib import axes
+from matplotlib import axes, figure
 from matplotlib.text import Text
 from matplotlib.transforms import Transform
 import matplotlib.pyplot as plt
@@ -547,7 +547,7 @@ def _make_page_fig(
     layout: _CardLayout,
     dpi: int,
     stats: StatsDict,
-) -> mpl.figure.Figure:
+) -> figure.Figure:
     """Create and populate a single page figure with up to ``_CARDS_PER_PAGE`` intro
     cards. Private function.
 
@@ -575,7 +575,7 @@ def _make_page_fig(
         people whose photos could not be found or read
     :type stats: StatsDict
     :return: The populated Matplotlib figure for this page
-    :rtype: mpl.figure.Figure
+    :rtype: figure.Figure
     """
     fig, axs = plt.subplots(2, 2, figsize=layout.figure_size, dpi=dpi)
     fig.tight_layout(h_pad=0.1, w_pad=0.1)
