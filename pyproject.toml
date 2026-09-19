@@ -13,12 +13,11 @@ dev = [
 
 [project]
 name = "create-intro-cards"
-version = "1.0.5"
+version = "1.0.6"
 description = """Convert a dataset of individuals' names, photos, and custom attributes into a PDF of “intro cards” that describe each individual."""
 authors = [{name = "Bobby Math"}]
 license = {file = "LICENSE.txt"}
 dependencies = [
-    "numpy>=1.26.1",
     "pandas>=2.1.2",
     "matplotlib>=3.8.1",
     "Pillow>=10.1.0",

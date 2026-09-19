@@ -319,12 +319,11 @@ wheels = [
 
 [[package]]
 name = "create-intro-cards"
-version = "1.0.5"
+version = "1.0.6"
 source = { editable = "." }
 dependencies = [
     { name = "ipykernel" },
     { name = "matplotlib" },
-    { name = "numpy" },
     { name = "pandas" },
     { name = "pillow" },
 ]
@@ -343,7 +342,6 @@ dev = [
 requires-dist = [
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "matplotlib", specifier = ">=3.8.1" },
-    { name = "numpy", specifier = ">=1.26.1" },
     { name = "pandas", specifier = ">=2.1.2" },
     { name = "pillow", specifier = ">=10.1.0" },
 ]

@@ -57,7 +57,7 @@ DataFrame
 
 **Mathtext rendering:** Card text uses matplotlib's Mathtext engine (bold context `{"mathtext.default": "bf"}`). This means custom column names and values are escaped when needed. Column names have `~`, `^`, `\` stripped, and `space #$%_{}` escaped. Column values only have `$` escaped. Name/photo columns are left untouched.
 
-**`CardLayout` dataclass:** All visual parameters (figure size, font sizes, photo bounds, name/description positioning) are bundled here. Users can pass a custom instance to either public function to override defaults.
+**`_CardLayout` dataclass:** All visual parameters (figure size, font sizes, photo bounds, name/description positioning) are internally bundled into this private dataclass. It is not part of the public API; the public functions still take these as flat keyword arguments and construct a `_CardLayout` instance internally.
 
 **`_WrapText`:** Subclasses `matplotlib.Text` to enable word-wrapping within a specified pixel width. Used for both name and description rendering. Description font size is reduced iteratively by `_FONT_SHRINK_FACTOR = 0.95` until text fits.
 

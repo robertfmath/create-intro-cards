@@ -33,8 +33,8 @@ class StatsDict(TypedDict):
 class _CardLayout:
     """Layout and formatting parameters for intro cards.
 
-    :param figure_size: Width and height of each page figure in inches, defaults to
-        (23, 13)
+    :param figure_size: Width and height of each page figure in inches, defaults to (23,
+        13)
     :type figure_size: tuple[float, float], optional
     :param name_x_coord: Axes-relative x-coordinate of the name (and description) on
         each card, defaults to 0.35
@@ -47,8 +47,9 @@ class _CardLayout:
     :param desc_padding: Axes-relative padding between the bottom of the name bounding
         box and the top of the description, defaults to 0.05
     :type desc_padding: float, optional
-    :param desc_font_size: Font size of the description on each card. Iteratively reduced
-        by 5% if the description would overflow the bottom of the card, defaults to 16
+    :param desc_font_size: Font size of the description on each card. Iteratively
+        reduced by 5% if the description would overflow the bottom of the card, defaults
+        to 16
     :type desc_font_size: float, optional
     :param photo_axes_bounds: Bounds of the inset photo Axes as (x0, y0, width, height)
         in Axes-relative coordinates, defaults to (0.02, 0.02, 0.3, 0.93)
